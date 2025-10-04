@@ -1,22 +1,24 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Send, Bot, User as UserIcon, ArrowLeft } from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
+import { sendMessage, createChatSession, getChatMessages } from '@/lib/agents/chat-service'
 import type { ChatMessage } from '@/types'
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: 'Hello! I\'m your AI Employee. How can I help you today?',
-      timestamp: new Date(),
-    },
-  ])
+  const { id: employeeId } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuthStore()
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [employeeName] = useState('AI Employee')
+  const [employeeRole] = useState('Software Engineer')
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isInitializing, setIsInitializing] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -27,31 +29,99 @@ export default function ChatPage() {
     scrollToBottom()
   }, [messages])
 
-  const handleSend = async () => {
-    if (!input.trim()) return
+  // Initialize chat session
+  useEffect(() => {
+    const initializeChat = async () => {
+      if (!user || !employeeId) {
+        navigate('/marketplace')
+        return
+      }
 
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input,
-      timestamp: new Date(),
+      try {
+        // Create a new chat session
+        const newSessionId = await createChatSession({
+          userId: user.id,
+          employeeId,
+        })
+        setSessionId(newSessionId)
+
+        // Load existing messages if any
+        const existingMessages = await getChatMessages(newSessionId)
+
+        if (existingMessages.length === 0) {
+          // Add welcome message
+          setMessages([
+            {
+              id: '1',
+              role: 'assistant',
+              content: `Hello! I'm your ${employeeRole}. How can I help you today?`,
+              timestamp: new Date(),
+            },
+          ])
+        } else {
+          setMessages(existingMessages)
+        }
+      } catch (error) {
+        console.error('Failed to initialize chat:', error)
+        // Fallback to demo mode
+        setMessages([
+          {
+            id: '1',
+            role: 'assistant',
+            content: `Hello! I'm your ${employeeRole}. How can I help you today?`,
+            timestamp: new Date(),
+          },
+        ])
+      } finally {
+        setIsInitializing(false)
+      }
     }
 
-    setMessages((prev) => [...prev, userMessage])
+    initializeChat()
+  }, [user, employeeId, employeeRole, navigate])
+
+  const handleSend = async () => {
+    if (!input.trim() || !sessionId || !user || !employeeId) return
+
+    const userMessageContent = input
     setInput('')
+
+    // Optimistically add user message to UI
+    const tempUserMessage: ChatMessage = {
+      id: `temp-${Date.now()}`,
+      role: 'user',
+      content: userMessageContent,
+      timestamp: new Date(),
+    }
+    setMessages((prev) => [...prev, tempUserMessage])
     setIsLoading(true)
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+    try {
+      // Send message and get AI response
+      const aiMessage = await sendMessage({
+        sessionId,
+        userId: user.id,
+        employeeId,
+        employeeRole,
+        content: userMessageContent,
+      })
+
+      // Update messages with actual AI response
+      setMessages((prev) => [...prev, aiMessage])
+    } catch (error) {
+      console.error('Failed to send message:', error)
+
+      // Fallback error message
+      const errorMessage: ChatMessage = {
+        id: Date.now().toString(),
         role: 'assistant',
-        content: `I received your message: "${input}". This is a placeholder response. In production, this would connect to your AI provider (Claude, ChatGPT, or Gemini) via API.`,
+        content: 'Sorry, I encountered an error processing your request. Please try again.',
         timestamp: new Date(),
       }
-      setMessages((prev) => [...prev, aiMessage])
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -59,6 +129,17 @@ export default function ChatPage() {
       e.preventDefault()
       handleSend()
     }
+  }
+
+  if (isInitializing) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Initializing chat session...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -74,8 +155,8 @@ export default function ChatPage() {
         <div className="flex items-center gap-2">
           <Bot className="h-6 w-6 text-primary" />
           <div>
-            <h1 className="font-semibold">AI Employee Chat</h1>
-            <p className="text-xs text-muted-foreground">Powered by Claude</p>
+            <h1 className="font-semibold">{employeeName}</h1>
+            <p className="text-xs text-muted-foreground">{employeeRole} • Powered by Claude AI</p>
           </div>
         </div>
       </header>
