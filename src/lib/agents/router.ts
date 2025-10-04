@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 // Initialize Anthropic client with API key from environment
 const anthropic = createAnthropic({
-  apiKey: import.meta.env.ANTHROPIC_API_KEY || '',
+  apiKey: import.meta.env.ANTHROPIC_API_KEY || import.meta.env.VITE_ANTHROPIC_API_KEY || '',
 });
 
 export interface AgentRequest {
