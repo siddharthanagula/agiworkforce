@@ -6,7 +6,7 @@ import LoginPage from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
 import LandingPage from '@/pages/LandingPage'
 import MarketplacePage from '@/pages/MarketplacePage'
-import ChatPage from '@/pages/chat/ChatPage'
+import EnhancedChatPage from '@/pages/chat/EnhancedChatPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -46,12 +46,12 @@ function App() {
         } />
         <Route path="/chat" element={
           <ProtectedRoute>
-            <ChatPage />
+            <EnhancedChatPage />
           </ProtectedRoute>
         } />
         <Route path="/chat/:id" element={
           <ProtectedRoute>
-            <ChatPage />
+            <EnhancedChatPage />
           </ProtectedRoute>
         } />
 

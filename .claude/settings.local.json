@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/nagul/OneDrive/Documents/**)",
+      "Bash(findstr:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "WebSearch",
+      "WebFetch(domain:agentuity.com)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm run dev:*)",
+      "Bash(cat:*)",
+      "WebFetch(domain:elevenlabs.io)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

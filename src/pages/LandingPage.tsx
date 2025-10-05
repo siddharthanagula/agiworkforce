@@ -1,43 +1,101 @@
 import { useNavigate } from 'react-router-dom'
 import { RainbowButton } from '@/components/ui/rainbow-button'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { BentoCard, BentoGrid } from '@/components/ui/bento-grid'
 import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee'
-import { VaporizeTextEffect, Tag } from '@/components/ui/vapour-text-effect'
+import { ScrollExpansionHero } from '@/components/ui/scroll-expansion-hero'
+import { Spotlight } from '@/components/ui/spotlight-aceternity'
 import DisplayCards from '@/components/ui/display-cards'
-import { 
-  ArrowRight, 
-  Brain, 
-  Shield, 
+import {
+  ArrowRight,
+  Brain,
+  Shield,
   MessageSquare,
-  BarChart3
+  BarChart3,
+  Sparkles,
+  Zap,
+  Users
 } from 'lucide-react'
 
 export default function LandingPage() {
   const navigate = useNavigate()
 
-  const features = [
+  const bentoFeatures = [
     {
-      icon: <Brain className="h-6 w-6" />,
-      title: "AI Employees",
-      description: "Hire specialized AI workers for any task"
+      Icon: Brain,
+      name: "AI Employees",
+      description: "Access specialized AI workers trained for any task in your workflow",
+      href: "/marketplace",
+      cta: "Explore AI Workers",
+      background: (
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20" />
+      ),
+      className: "lg:row-start-1 lg:row-end-3 lg:col-start-1 lg:col-end-2",
     },
     {
-      icon: <MessageSquare className="h-6 w-6" />,
-      title: "Real-time Chat",
-      description: "Communicate with your AI team instantly"
+      Icon: MessageSquare,
+      name: "Real-time Chat",
+      description: "Communicate with your AI team instantly through our advanced chat interface",
+      href: "/chat",
+      cta: "Start Chatting",
+      background: (
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-teal-500/20" />
+      ),
+      className: "lg:col-start-2 lg:col-end-3 lg:row-start-1 lg:row-end-2",
     },
     {
-      icon: <BarChart3 className="h-6 w-6" />,
-      title: "Analytics",
-      description: "Track performance and productivity"
+      Icon: BarChart3,
+      name: "Analytics Dashboard",
+      description: "Track performance, productivity, and ROI with detailed analytics",
+      href: "/dashboard",
+      cta: "View Dashboard",
+      background: (
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-red-500/20" />
+      ),
+      className: "lg:col-start-2 lg:col-end-3 lg:row-start-2 lg:row-end-3",
     },
     {
-      icon: <Shield className="h-6 w-6" />,
-      title: "Secure",
-      description: "Enterprise-grade security and privacy"
-    }
-  ]
+      Icon: Shield,
+      name: "Enterprise Security",
+      description: "Bank-level encryption and compliance with SOC 2, GDPR, and HIPAA",
+      href: "#",
+      cta: "Learn More",
+      background: (
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-blue-500/20" />
+      ),
+      className: "lg:col-start-3 lg:col-end-4 lg:row-start-1 lg:row-end-3",
+    },
+  ];
+
+  const displayCardsData = [
+    {
+      icon: <Sparkles className="size-4 text-blue-300" />,
+      title: "Innovation",
+      description: "Cutting-edge AI technology",
+      date: "Today",
+      titleClassName: "text-blue-500",
+      className:
+        "[grid-area:stack] hover:-translate-y-10 before:absolute before:w-[100%] before:outline-1 before:rounded-xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/50 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-700 hover:grayscale-0 before:left-0 before:top-0",
+    },
+    {
+      icon: <Zap className="size-4 text-yellow-300" />,
+      title: "Fast",
+      description: "Lightning-quick responses",
+      date: "Now",
+      titleClassName: "text-yellow-500",
+      className:
+        "[grid-area:stack] translate-x-16 translate-y-10 hover:-translate-y-1 before:absolute before:w-[100%] before:outline-1 before:rounded-xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/50 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-700 hover:grayscale-0 before:left-0 before:top-0",
+    },
+    {
+      icon: <Users className="size-4 text-green-300" />,
+      title: "Collaborative",
+      description: "Work together seamlessly",
+      date: "24/7",
+      titleClassName: "text-green-500",
+      className:
+        "[grid-area:stack] translate-x-32 translate-y-20 hover:translate-y-10",
+    },
+  ];
 
   const testimonials = [
     {
@@ -70,146 +128,97 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20" />
-        
-        <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
-          <div className="mb-8">
-            <VaporizeTextEffect
-              texts={["AGI Workforce", "AI Employees", "Future of Work"]}
-              font={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "4rem",
-                fontWeight: 700
-              }}
-              color="rgb(255,255,255)"
-              spread={3}
-              density={8}
-              animation={{
-                vaporizeDuration: 2,
-                fadeInDuration: 1,
-                waitDuration: 1
-              }}
-              direction="left-to-right"
-              alignment="center"
-              tag={Tag.H1}
-            />
-          </div>
-          
-          <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
-            Hire, manage, and collaborate with specialized AI employees. 
-            Build your dream team of artificial intelligence workers.
+    <div className="min-h-screen bg-background">
+      {/* Hero Section with Scroll Expansion */}
+      <ScrollExpansionHero
+        title="AGI Workforce"
+        subtitle="Transform your business with AI employees that work 24/7"
+      >
+        <div className="relative z-10 text-center px-4 max-w-6xl">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/60">
+            AGI Workforce
+          </h1>
+          <p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground font-light mb-8">
+            Transform your business with AI employees that work 24/7
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <RainbowButton
-              onClick={() => navigate('/register')}
-              className="text-lg px-8 py-4"
-            >
-              Start Building Your AI Team
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <RainbowButton onClick={() => navigate('/register')} className="text-lg px-8 py-6">
+              Get Started Free
               <ArrowRight className="ml-2 h-5 w-5" />
             </RainbowButton>
-            
             <Button
               variant="outline"
+              size="lg"
+              className="text-lg px-8 py-6"
               onClick={() => navigate('/marketplace')}
-              className="text-lg px-8 py-4 bg-white/10 border-white/20 text-white hover:bg-white/20"
             >
-              Browse AI Employees
+              Explore Marketplace
             </Button>
           </div>
         </div>
-      </section>
+      </ScrollExpansionHero>
 
-      {/* Features Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
+      {/* Features Section with Spotlight */}
+      <section className="relative py-20 px-4 overflow-hidden">
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Why Choose AGI Workforce?
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Powerful Features
             </h2>
-            <p className="text-xl text-slate-300">
-              The most advanced platform for AI employee management
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Everything you need to build and manage your AI workforce
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="bg-white/10 backdrop-blur-md border-white/20 text-center">
-                <CardHeader>
-                  <div className="mx-auto mb-4 h-12 w-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                    {feature.icon}
-                  </div>
-                  <CardTitle className="text-white">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-slate-300">
-                    {feature.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
+
+          <BentoGrid className="lg:grid-rows-2 mb-16">
+            {bentoFeatures.map((feature) => (
+              <BentoCard key={feature.name} {...feature} />
             ))}
+          </BentoGrid>
+        </div>
+      </section>
+
+      {/* Display Cards Section */}
+      <section className="py-20 px-4 bg-muted/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Why Choose AGI Workforce?
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              The future of work is here
+            </p>
+          </div>
+
+          <div className="flex justify-center">
+            <DisplayCards cards={displayCardsData} />
           </div>
         </div>
       </section>
 
-      {/* Interactive Demo Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-8">
-            See Your AI Team in Action
-          </h2>
-          <div className="mb-12">
-            <DisplayCards />
-          </div>
-          <Button
-            onClick={() => navigate('/marketplace')}
-            variant="outline"
-            className="text-lg px-8 py-4 bg-white/10 border-white/20 text-white hover:bg-white/20"
-          >
-            Explore AI Employees
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
+      {/* Testimonials */}
       <TestimonialsSection
-        title="Trusted by Innovators Worldwide"
-        description="Join thousands of companies already building the future with AI employees"
+        title="Trusted by businesses worldwide"
+        description="Join thousands of companies already transforming their workflow with AI"
         testimonials={testimonials}
         className="py-20"
       />
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">
-            Ready to Build Your AI Workforce?
+      <section className="relative py-32 px-4 overflow-hidden">
+        <Spotlight className="top-40 right-0 md:right-60" fill="white" />
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl md:text-6xl font-bold mb-6">
+            Ready to Transform Your Workflow?
           </h2>
-          <p className="text-xl text-slate-300 mb-8">
-            Join the revolution. Start hiring AI employees today.
+          <p className="text-xl text-muted-foreground mb-8">
+            Start hiring AI employees today and see the difference
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <RainbowButton
-              onClick={() => navigate('/register')}
-              className="text-lg px-8 py-4"
-            >
-              Get Started Free
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </RainbowButton>
-            
-            <Button
-              variant="outline"
-              onClick={() => navigate('/login')}
-              className="text-lg px-8 py-4 bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              Sign In
-            </Button>
-          </div>
+          <RainbowButton onClick={() => navigate('/register')} className="text-lg px-12 py-6">
+            Start Free Trial
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </RainbowButton>
         </div>
       </section>
     </div>
