@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Send, Bot, User as UserIcon, ArrowLeft } from 'lucide-react'
-import { useAuthStore } from '@/store/authStore'
+import { useAuth } from '@/hooks/useAuth'
 import { sendMessage, createChatSession, getChatMessages } from '@/lib/agents/chat-service'
 import type { ChatMessage } from '@/types'
 
 export default function ChatPage() {
   const { id: employeeId } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuthStore()
+  const { user } = useAuth()
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [employeeName] = useState('AI Employee')
   const [employeeRole] = useState('Software Engineer')
@@ -40,7 +40,7 @@ export default function ChatPage() {
       try {
         // Create a new chat session
         const newSessionId = await createChatSession({
-          userId: user.id,
+          userId: user.sub || user.email || 'demo-user',
           employeeId,
         })
         setSessionId(newSessionId)
@@ -100,7 +100,7 @@ export default function ChatPage() {
       // Send message and get AI response
       const aiMessage = await sendMessage({
         sessionId,
-        userId: user.id,
+        userId: user.sub || user.email || 'demo-user',
         employeeId,
         employeeRole,
         content: userMessageContent,

@@ -1,16 +1,14 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '@/store/authStore'
+import { Link } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Bot, MessageSquare, LogOut, User } from 'lucide-react'
 
 export default function DashboardPage() {
-  const { user, logout } = useAuthStore()
-  const navigate = useNavigate()
+  const { user, logout } = useAuth()
 
-  const handleLogout = async () => {
-    await logout()
-    navigate('/login')
+  const handleLogout = () => {
+    logout()
   }
 
   const hiredEmployees = [
@@ -27,7 +25,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <User className="h-5 w-5" />
-              <span className="font-medium">{user?.name}</span>
+              <span className="font-medium">{user?.name || user?.email}</span>
             </div>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
