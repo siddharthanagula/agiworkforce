@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { ReactNode } from "react";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 
 import { cn } from "@/lib/utils";

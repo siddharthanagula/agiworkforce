@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 
@@ -10,7 +9,6 @@ interface DisplayCardProps {
   title?: string;
   description?: string;
   date?: string;
-  iconClassName?: string;
   titleClassName?: string;
 }
 
@@ -20,7 +18,6 @@ function DisplayCard({
   title = "Featured",
   description = "Discover amazing content",
   date = "Just now",
-  iconClassName,
   titleClassName = "text-blue-500",
 }: DisplayCardProps) {
   return (
@@ -31,7 +28,7 @@ function DisplayCard({
       )}
     >
       <div>
-        <span className={cn("relative inline-block rounded-full bg-blue-800 p-1", iconClassName)}>
+        <span className="relative inline-block rounded-full bg-blue-800 p-1">
           {icon}
         </span>
         <p className={cn("text-lg font-medium", titleClassName)}>{title}</p>

@@ -1,425 +1,262 @@
-import { useState, useEffect, useRef } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { PromptInputBox } from '@/components/ui/ai-prompt-box'
-import { AIVoiceInput } from '@/components/ui/ai-voice-input'
-import { EmptyState } from '@/components/ui/empty-state'
-import { toast } from 'sonner'
 import { 
-  Bot, 
-  User, 
-  Mic, 
-  Share, 
+  ArrowLeft, 
+  Phone, 
+  Video, 
   MoreVertical,
-  Plus,
-  MessageSquare,
-  Loader2,
-  ArrowLeft,
-  Settings,
-  Copy
+  Star,
+  Clock,
+  CheckCircle,
+  Bot,
+  User
 } from 'lucide-react'
 
 interface Message {
   id: string
   content: string
-  role: 'user' | 'assistant'
+  sender: 'user' | 'ai'
   timestamp: Date
-  status: 'sending' | 'sent' | 'error'
   type: 'text' | 'voice' | 'file'
-  files?: File[]
+  isTyping?: boolean
 }
 
-interface ChatSession {
+interface AIEmployee {
   id: string
-  title: string
-  messages: Message[]
-  createdAt: Date
-  updatedAt: Date
-  aiEmployee: {
-    name: string
-    role: string
-    provider: string
-    avatar: string
-  }
+  name: string
+  role: string
+  avatar: string
+  status: 'online' | 'busy' | 'offline'
+  responseTime: string
+  rating: number
+  skills: string[]
 }
 
 export default function ChatPage() {
   const { id } = useParams()
-  const [currentSession, setCurrentSession] = useState<ChatSession | null>(null)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedAI, setSelectedAI] = useState<string>('claude-engineer')
+  const navigate = useNavigate()
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isTyping, setIsTyping] = useState(false)
 
-  const aiEmployees = [
-    {
-      id: 'claude-engineer',
-      name: 'Claude Engineer',
-      role: 'Software Engineer',
-      provider: 'claude',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-      description: 'Expert in full-stack development and system architecture'
-    },
-    {
-      id: 'gpt-marketer',
-      name: 'GPT Marketer',
-      role: 'Marketing Manager',
-      provider: 'chatgpt',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
-      description: 'Creative campaigns and content strategy expert'
-    },
-    {
-      id: 'gemini-analyst',
-      name: 'Gemini Analyst',
-      role: 'Data Scientist',
-      provider: 'gemini',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
-      description: 'Data analysis and machine learning specialist'
-    }
-  ]
-
-  const chatSessions = [
-    {
-      id: '1',
-      title: 'React Component Architecture',
-      messages: [],
-      createdAt: new Date('2025-01-01'),
-      updatedAt: new Date('2025-01-01'),
-      aiEmployee: aiEmployees[0]
-    },
-    {
-      id: '2',
-      title: 'Marketing Campaign Strategy',
-      messages: [],
-      createdAt: new Date('2025-01-02'),
-      updatedAt: new Date('2025-01-02'),
-      aiEmployee: aiEmployees[1]
-    },
-    {
-      id: '3',
-      title: 'Data Analysis Project',
-      messages: [],
-      createdAt: new Date('2025-01-03'),
-      updatedAt: new Date('2025-01-03'),
-      aiEmployee: aiEmployees[2]
-    }
-  ]
-
-  useEffect(() => {
-    if (id) {
-      const session = chatSessions.find(s => s.id === id)
-      if (session) {
-        setCurrentSession(session)
-        setMessages(session.messages)
-      }
-    } else {
-      setCurrentSession(null)
-      setMessages([])
-    }
-  }, [id])
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+  // Mock AI Employee data
+  const aiEmployee: AIEmployee = {
+    id: id || '1',
+    name: 'Alex Chen',
+    role: 'Senior Full-Stack Developer',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    status: 'online',
+    responseTime: '< 1 min',
+    rating: 4.9,
+    skills: ['React', 'Node.js', 'TypeScript', 'AWS', 'Docker']
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const handleSendMessage = async (content: string, files?: File[]) => {
-    if (!content.trim() && !files?.length) return
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content,
-      role: 'user',
-      timestamp: new Date(),
-      status: 'sent',
-      type: files?.length ? 'file' : 'text',
-      files
+  // Initialize with welcome message
+  useEffect(() => {
+    if (messages.length === 0) {
+          setMessages([
+            {
+              id: '1',
+          content: `Hello! I'm ${aiEmployee.name}, your ${aiEmployee.role}. I'm here to help you with development tasks, code reviews, architecture decisions, and technical problem-solving. How can I assist you today?`,
+          sender: 'ai',
+              timestamp: new Date(),
+          type: 'text'
+        }
+      ])
     }
+  }, [aiEmployee.name, aiEmployee.role, messages.length])
 
-    setMessages(prev => [...prev, userMessage])
-    setIsLoading(true)
+  const handleSendMessage = (message: string, files?: File[]) => {
+    if (!message.trim() && (!files || files.length === 0)) return
+
+    // Add user message
+    setMessages(prev => [...prev, {
+      id: Date.now().toString(),
+      content: message,
+      sender: 'user',
+      timestamp: new Date(),
+      type: 'text'
+    }])
+    setIsTyping(true)
 
     // Simulate AI response
     setTimeout(() => {
-      const aiMessage: Message = {
+      const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: `I understand you're asking about "${content}". Let me help you with that. This is a simulated response from the AI employee.`,
-        role: 'assistant',
+        content: generateAIResponse(message),
+        sender: 'ai',
         timestamp: new Date(),
-        status: 'sent',
         type: 'text'
       }
-      setMessages(prev => [...prev, aiMessage])
-      setIsLoading(false)
-    }, 2000)
+      
+      setMessages(prev => [...prev, aiResponse])
+      setIsTyping(false)
+    }, 1500)
   }
 
-  const handleVoiceInput = (duration: number) => {
-    const voiceMessage: Message = {
-      id: Date.now().toString(),
-      content: `Voice message (${duration}s)`,
-      role: 'user',
-      timestamp: new Date(),
-      status: 'sent',
-      type: 'voice'
-    }
-    setMessages(prev => [...prev, voiceMessage])
-    toast.success(`Voice message recorded for ${duration} seconds`)
+  const generateAIResponse = (userMessage: string): string => {
+    const responses = [
+      `I understand your request about "${userMessage}". Let me help you with that. Based on your message, I can provide several approaches to solve this problem.`,
+      `That's an interesting challenge regarding "${userMessage}"! I've worked on similar projects before. Here's how I would approach this:`,
+      `Great question about "${userMessage}"! This is a common scenario in development. Let me break down the solution for you:`,
+      `I can definitely help you with "${userMessage}". Let me analyze the requirements and provide you with a comprehensive solution.`,
+      `Excellent! I have experience with this type of project related to "${userMessage}". Here's my recommended approach:`
+    ]
+    
+    return responses[Math.floor(Math.random() * responses.length)]
   }
 
-  const handleNewChat = () => {
-    setCurrentSession(null)
-    setMessages([])
-    toast.success('Started new chat session')
-  }
 
-  const handleCopyMessage = (content: string) => {
-    navigator.clipboard.writeText(content)
-    toast.success('Message copied to clipboard')
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
-
-  const currentAI = aiEmployees.find(ai => ai.id === selectedAI)
 
   return (
-    <div className="min-h-screen bg-black text-white flex">
-      {/* Sidebar */}
-      <div className="w-80 bg-gray-900 border-r border-gray-800 flex flex-col">
-        {/* Header */}
-        <div className="p-4 border-b border-gray-800">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold">AI Chat</h1>
-            <Button variant="ghost" size="sm" onClick={handleNewChat}>
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          {/* AI Employee Selector */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-400">Select AI Employee</label>
-            <select
-              value={selectedAI}
-              onChange={(e) => setSelectedAI(e.target.value)}
-              className="w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-white"
+    <div className="h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col">
+      {/* Header */}
+      <div className="bg-white/10 backdrop-blur-md border-b border-white/20 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/marketplace')}
+              className="text-white hover:bg-white/20"
             >
-              {aiEmployees.map(ai => (
-                <option key={ai.id} value={ai.id}>
-                  {ai.name} - {ai.role}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Chat Sessions */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-2">
-            {chatSessions.map(session => (
-              <Link
-                key={session.id}
-                to={`/chat/${session.id}`}
-                className={`block p-3 rounded-lg border transition-colors ${
-                  currentSession?.id === session.id
-                    ? 'bg-red-600 border-red-500'
-                    : 'bg-gray-800 border-gray-700 hover:bg-gray-700'
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <img
-                    src={session.aiEmployee.avatar}
-                    alt={session.aiEmployee.name}
-                    className="h-8 w-8 rounded-full"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{session.title}</div>
-                    <div className="text-sm text-gray-400 truncate">
-                      {session.aiEmployee.name}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-xs text-gray-500">
-                  {session.updatedAt.toLocaleDateString()}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-gray-800">
-          <Button variant="outline" className="w-full" asChild>
-            <Link to="/dashboard">
-              <Settings className="mr-2 h-4 w-4" />
-              Dashboard
-            </Link>
+              <ArrowLeft className="h-4 w-4" />
           </Button>
-        </div>
-      </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Chat Header */}
-        <div className="bg-gray-900 border-b border-gray-800 p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link to="/chat">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-              </Link>
-              {currentAI && (
-                <div className="flex items-center gap-3">
-                  <img
-                    src={currentAI.avatar}
-                    alt={currentAI.name}
-                    className="h-10 w-10 rounded-full"
-                  />
-                  <div>
-                    <div className="font-semibold">{currentAI.name}</div>
-                    <div className="text-sm text-gray-400">{currentAI.role}</div>
-                  </div>
-                </div>
-              )}
+            
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={aiEmployee.avatar} alt={aiEmployee.name} />
+                  <AvatarFallback>{aiEmployee.name[0]}</AvatarFallback>
+                </Avatar>
+                <div className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white ${
+                  aiEmployee.status === 'online' ? 'bg-green-500' : 
+                  aiEmployee.status === 'busy' ? 'bg-yellow-500' : 'bg-gray-500'
+                }`} />
+              </div>
+              
+          <div>
+                <h2 className="text-white font-semibold">{aiEmployee.name}</h2>
+                <p className="text-slate-300 text-sm">{aiEmployee.role}</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm">
-                <Share className="h-4 w-4" />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 text-slate-300">
+              <Star className="h-4 w-4 text-yellow-400 fill-current" />
+              <span className="text-sm">{aiEmployee.rating}</span>
+            </div>
+            
+            <div className="flex items-center space-x-1 text-slate-300">
+              <Clock className="h-4 w-4" />
+              <span className="text-sm">{aiEmployee.responseTime}</span>
+            </div>
+
+            <div className="flex space-x-1">
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+                <Phone className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+                <Video className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </div>
           </div>
+          </div>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 ? (
-            <EmptyState
-              title="Start a conversation"
-              description="Send a message to begin chatting with your AI employee"
-              icons={[MessageSquare, Bot, User]}
-            />
-          ) : (
-            messages.map(message => (
-              <div
-                key={message.id}
-                className={`flex gap-3 ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
-              >
-                {message.role === 'assistant' && (
-                  <img
-                    src={currentAI?.avatar}
-                    alt="AI"
-                    className="h-8 w-8 rounded-full flex-shrink-0"
-                  />
-                )}
-                
-                <div
-                  className={`max-w-2xl rounded-lg p-4 ${
-                    message.role === 'user'
-                      ? 'bg-red-600 text-white'
-                      : 'bg-gray-800 text-white'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1">
-                      {message.type === 'voice' ? (
-                        <div className="flex items-center gap-2">
-                          <Mic className="h-4 w-4" />
-                          <span>{message.content}</span>
-                        </div>
-                      ) : (
-                        <div className="whitespace-pre-wrap">{message.content}</div>
-                      )}
-                      
-                      {message.files && message.files.length > 0 && (
-                        <div className="mt-2 space-y-1">
-                          {message.files.map((file, index) => (
-                            <div key={index} className="text-sm text-gray-300">
-                              📎 {file.name}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-400">
-                        {message.timestamp.toLocaleTimeString()}
-                      </span>
-                      {message.role === 'assistant' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleCopyMessage(message.content)}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {message.status === 'sending' && (
-                    <div className="flex items-center gap-1 mt-2">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      <span className="text-xs">Sending...</span>
-                    </div>
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div className={`flex items-start space-x-2 max-w-[70%] ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+              {message.sender === 'ai' && (
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  <AvatarImage src={aiEmployee.avatar} alt={aiEmployee.name} />
+                  <AvatarFallback>
+                    <Bot className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+              )}
+              
+              <div className={`rounded-lg px-4 py-2 ${
+                message.sender === 'user' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-white/10 text-white backdrop-blur-md'
+              }`}>
+                <p className="text-sm">{message.content}</p>
+                <div className={`flex items-center mt-1 text-xs ${
+                  message.sender === 'user' ? 'text-blue-100' : 'text-slate-400'
+                }`}>
+                  <span>{formatTime(message.timestamp)}</span>
+                  {message.sender === 'user' && (
+                    <CheckCircle className="h-3 w-3 ml-1" />
                   )}
-                </div>
-                
-                {message.role === 'user' && (
-                  <img
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
-                    alt="User"
-                    className="h-8 w-8 rounded-full flex-shrink-0"
-                  />
-                )}
               </div>
-            ))
-          )}
-          
-          {isLoading && (
-            <div className="flex gap-3">
-              <img
-                src={currentAI?.avatar}
-                alt="AI"
-                className="h-8 w-8 rounded-full flex-shrink-0"
-              />
-              <div className="bg-gray-800 rounded-lg p-4">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>AI is thinking...</span>
-                </div>
               </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
 
-        {/* Input Area */}
-        <div className="bg-gray-900 border-t border-gray-800 p-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <PromptInputBox
-                  onSend={handleSendMessage}
-                  placeholder={`Message ${currentAI?.name || 'AI Employee'}...`}
-                  isLoading={isLoading}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <AIVoiceInput
-                  onStop={handleVoiceInput}
-                  className="w-12 h-12"
-                />
-              </div>
+              {message.sender === 'user' && (
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  <AvatarFallback>
+                    <User className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+              )}
             </div>
           </div>
+        ))}
+
+        {isTyping && (
+          <div className="flex justify-start">
+            <div className="flex items-start space-x-2">
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarImage src={aiEmployee.avatar} alt={aiEmployee.name} />
+                <AvatarFallback>
+                  <Bot className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              
+              <div className="bg-white/10 text-white backdrop-blur-md rounded-lg px-4 py-2">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-white rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                  <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                </div>
+            </div>
+              </div>
+          </div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Area */}
+      <div className="bg-white/10 backdrop-blur-md border-t border-white/20 p-4">
+        <div className="max-w-4xl mx-auto">
+                <PromptInputBox
+            onSend={handleSendMessage}
+            placeholder="Type your message to Alex..."
+            className="bg-white/10 border-white/20"
+          />
         </div>
       </div>
     </div>

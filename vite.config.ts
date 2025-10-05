@@ -31,10 +31,6 @@ export default defineConfig({
           if (id.includes('@radix-ui') || id.includes('framer-motion') || id.includes('lucide-react')) {
             return 'ui-components'
           }
-          // AI Providers
-          if (id.includes('@anthropic-ai') || id.includes('openai') || id.includes('@google/generative-ai')) {
-            return 'ai-providers'
-          }
           // Spline 3D (separate chunk for heavy 3D library)
           if (id.includes('@splinetool') || id.includes('react-spline')) {
             return 'spline-3d'
@@ -43,24 +39,8 @@ export default defineConfig({
           if (id.includes('@splinetool/runtime')) {
             return 'spline-runtime'
           }
-          // Physics and 3D math libraries
-          if (id.includes('physics') || id.includes('navmesh') || id.includes('boolean') || id.includes('gaussian-splat')) {
-            return 'physics-3d'
-          }
-          // Audio libraries
-          if (id.includes('howler')) {
-            return 'audio'
-          }
-          // Font and typography
-          if (id.includes('opentype')) {
-            return 'fonts'
-          }
-          // Process utilities
-          if (id.includes('process')) {
-            return 'utils'
-          }
           // Auth0 and other React-dependent libraries
-          if (id.includes('@auth0') || id.includes('@tanstack/react-query') || id.includes('zustand') || id.includes('sonner')) {
+          if (id.includes('@auth0') || id.includes('zustand') || id.includes('sonner')) {
             return 'react-vendors'
           }
           // Default chunk for other dependencies

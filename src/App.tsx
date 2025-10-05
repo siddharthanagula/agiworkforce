@@ -1,13 +1,32 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { Auth0Provider } from '@auth0/auth0-react'
+import { isAuth0Configured, getAuth0Config } from '@/lib/auth0'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
-import LandingPage from '@/pages/LandingPage'
 import LoginPage from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
-import DashboardPage from '@/pages/dashboard/DashboardPage'
+import LandingPage from '@/pages/LandingPage'
 import MarketplacePage from '@/pages/MarketplacePage'
 import ChatPage from '@/pages/chat/ChatPage'
-import { ExpandableChat } from '@/components/ui/expandable-chat'
+import DashboardPage from '@/pages/dashboard/DashboardPage'
 import { Toaster } from '@/components/ui/sonner'
+
+function AppWrapper() {
+  const auth0ConfigData = getAuth0Config()
+  
+  if (isAuth0Configured() && auth0ConfigData) {
+    return (
+      <Auth0Provider
+        domain={auth0ConfigData.domain}
+        clientId={auth0ConfigData.clientId}
+        authorizationParams={auth0ConfigData.authorizationParams}
+      >
+        <App />
+      </Auth0Provider>
+    )
+  }
+  
+  return <App />
+}
 
 function App() {
   return (
@@ -20,42 +39,30 @@ function App() {
         <Route path="/marketplace" element={<MarketplacePage />} />
 
         {/* Protected Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/chat"
-          element={
-            <ProtectedRoute>
-              <ChatPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/chat/:id"
-          element={
-            <ProtectedRoute>
-              <ChatPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/chat" element={
+          <ProtectedRoute>
+            <ChatPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/chat/:id" element={
+          <ProtectedRoute>
+            <ChatPage />
+          </ProtectedRoute>
+        } />
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      
-      {/* Global Expandable Chat */}
-      <ExpandableChat />
-      
+
       {/* Global Toast Notifications */}
       <Toaster />
     </Router>
   )
 }
 
-export default App
+export default AppWrapper

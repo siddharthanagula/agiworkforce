@@ -1,158 +1,144 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { useAuth0 } from '@auth0/auth0-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { BentoGrid } from '@/components/ui/bento-grid'
-import { Progress } from '@/components/ui/progress'
-import { toast } from 'sonner'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import LogoutButton from '@/components/auth/LogoutButton'
 import { 
+  Plus, 
+  Star, 
   MessageSquare, 
-  Users, 
-  DollarSign, 
-  TrendingUp, 
-  Clock, 
-  CheckCircle, 
-  Plus,
+  Clock,
+  TrendingUp,
+  Users,
+  Bot,
+  Activity,
   Settings,
-  Star,
-  Download,
+  Bell,
+  ChevronRight,
   Play,
-  Pause
+  Pause,
+  MoreVertical
 } from 'lucide-react'
 
 interface AIEmployee {
   id: string
   name: string
   role: string
-  status: 'active' | 'idle' | 'busy' | 'offline'
+  avatar: string
+  status: 'online' | 'busy' | 'offline'
+  rating: number
   tasksCompleted: number
   hoursWorked: number
-  rating: number
-  lastActive: Date
-  currentTask?: string
-  avatar: string
+  lastActive: string
+  skills: string[]
+  performance: number
 }
 
 interface Task {
   id: string
   title: string
   description: string
-  status: 'pending' | 'in-progress' | 'completed' | 'failed'
   assignedTo: string
+  status: 'pending' | 'in-progress' | 'completed'
   priority: 'low' | 'medium' | 'high'
-  createdAt: Date
-  dueDate?: Date
+  dueDate: string
   progress: number
 }
 
 export default function DashboardPage() {
-  const [selectedTimeframe, setSelectedTimeframe] = useState('7d')
+  const navigate = useNavigate()
+  const { user, isAuthenticated } = useAuth0()
+  const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null)
 
   const aiEmployees: AIEmployee[] = [
     {
       id: '1',
-      name: 'Claude Engineer',
-      role: 'Software Engineer',
-      status: 'active',
-      tasksCompleted: 24,
-      hoursWorked: 168,
+      name: 'Alex Chen',
+      role: 'Senior Full-Stack Developer',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      status: 'online',
       rating: 4.9,
-      lastActive: new Date(),
-      currentTask: 'Building React components',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face'
+      tasksCompleted: 47,
+      hoursWorked: 156,
+      lastActive: '2 minutes ago',
+      skills: ['React', 'Node.js', 'TypeScript'],
+      performance: 95
     },
     {
       id: '2',
-      name: 'GPT Marketer',
-      role: 'Marketing Manager',
+      name: 'Sarah Kim',
+      role: 'UI/UX Designer',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face',
       status: 'busy',
-      tasksCompleted: 18,
-      hoursWorked: 142,
-      rating: 4.7,
-      lastActive: new Date(Date.now() - 300000),
-      currentTask: 'Creating social media content',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face'
+      rating: 4.8,
+      tasksCompleted: 32,
+      hoursWorked: 128,
+      lastActive: '5 minutes ago',
+      skills: ['Figma', 'Adobe XD', 'Prototyping'],
+      performance: 88
     },
     {
       id: '3',
-      name: 'Gemini Analyst',
+      name: 'Marcus Johnson',
       role: 'Data Scientist',
-      status: 'idle',
-      tasksCompleted: 12,
-      hoursWorked: 89,
-      rating: 4.8,
-      lastActive: new Date(Date.now() - 1800000),
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face'
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      status: 'online',
+      rating: 4.9,
+      tasksCompleted: 28,
+      hoursWorked: 142,
+      lastActive: '1 minute ago',
+      skills: ['Python', 'TensorFlow', 'SQL'],
+      performance: 92
     }
   ]
 
   const tasks: Task[] = [
     {
       id: '1',
-      title: 'Build user authentication system',
-      description: 'Implement secure login and registration functionality',
+      title: 'Implement user authentication',
+      description: 'Add secure login and registration functionality',
+      assignedTo: 'Alex Chen',
       status: 'in-progress',
-      assignedTo: 'Claude Engineer',
       priority: 'high',
-      createdAt: new Date('2025-01-01'),
-      dueDate: new Date('2025-01-15'),
+      dueDate: '2024-01-15',
       progress: 75
     },
     {
       id: '2',
-      title: 'Create marketing campaign',
-      description: 'Design and implement Q1 marketing strategy',
+      title: 'Design mobile app interface',
+      description: 'Create responsive design for mobile devices',
+      assignedTo: 'Sarah Kim',
       status: 'pending',
-      assignedTo: 'GPT Marketer',
       priority: 'medium',
-      createdAt: new Date('2025-01-02'),
-      dueDate: new Date('2025-01-20'),
+      dueDate: '2024-01-20',
       progress: 0
     },
     {
       id: '3',
       title: 'Analyze user behavior data',
-      description: 'Process and analyze user interaction patterns',
+      description: 'Process and visualize user interaction patterns',
+      assignedTo: 'Marcus Johnson',
       status: 'completed',
-      assignedTo: 'Gemini Analyst',
       priority: 'low',
-      createdAt: new Date('2024-12-28'),
+      dueDate: '2024-01-10',
       progress: 100
     }
   ]
 
   const stats = {
     totalEmployees: aiEmployees.length,
-    activeEmployees: aiEmployees.filter(emp => emp.status === 'active').length,
-    totalTasks: tasks.length,
-    completedTasks: tasks.filter(task => task.status === 'completed').length,
-    totalHours: aiEmployees.reduce((sum, emp) => sum + emp.hoursWorked, 0),
-    costSavings: 85000,
-    productivity: 94
-  }
-
-  const handleStartTask = () => {
-    toast.success('Task started successfully')
-  }
-
-  const handlePauseTask = () => {
-    toast.info('Task paused')
-  }
-
-  const handleCompleteTask = () => {
-    toast.success('Task completed!')
-  }
-
-  const handleHireEmployee = () => {
-    toast.info('Redirecting to marketplace...')
+    activeEmployees: aiEmployees.filter(emp => emp.status === 'online').length,
+    tasksCompleted: tasks.filter(task => task.status === 'completed').length,
+    totalHours: aiEmployees.reduce((sum, emp) => sum + emp.hoursWorked, 0)
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-500'
+      case 'online': return 'bg-green-500'
       case 'busy': return 'bg-yellow-500'
-      case 'idle': return 'bg-blue-500'
       case 'offline': return 'bg-gray-500'
       default: return 'bg-gray-500'
     }
@@ -160,354 +146,299 @@ export default function DashboardPage() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-400'
-      case 'medium': return 'text-yellow-400'
-      case 'low': return 'text-green-400'
-      default: return 'text-gray-400'
+      case 'high': return 'bg-red-500/20 text-red-400 border-red-500/30'
+      case 'medium': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+      case 'low': return 'bg-green-500/20 text-green-400 border-green-500/30'
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+    }
+  }
+
+  const getStatusColor2 = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-500/20 text-green-400 border-green-500/30'
+      case 'in-progress': return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+      case 'pending': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30'
     }
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Navigation */}
-      <nav className="bg-gray-900 border-b border-gray-800 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-3">
-              <img
-                src="/agi-workforce-logo.svg"
-                alt="AGI Workforce"
-                className="h-8 w-auto"
-              />
-              <h1 className="text-xl font-bold">AGI WORKFORCE</h1>
-            </Link>
-            <div className="hidden md:flex items-center gap-6 ml-8">
-              <Link to="/dashboard" className="text-red-500 font-medium">Dashboard</Link>
-              <Link to="/chat" className="text-gray-400 hover:text-white">Chat</Link>
-              <Link to="/marketplace" className="text-gray-400 hover:text-white">Marketplace</Link>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Header */}
+      <div className="bg-white/10 backdrop-blur-md border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white">AI Workforce Dashboard</h1>
+              <p className="text-slate-300 mt-2">Manage your AI employees and track performance</p>
             </div>
-            </div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm">
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm">
-              Logout
-            </Button>
-          </div>
-        </div>
-      </nav>
-
-      <div className="flex">
-        {/* Sidebar */}
-        <div className="w-64 bg-gray-900 border-r border-gray-800 min-h-screen">
-          <div className="p-6">
-            <div className="space-y-4">
-              <div className="text-sm font-medium text-gray-400 mb-2">Quick Stats</div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Active Employees</span>
-                  <Badge variant="secondary" className="bg-green-500/20 text-green-400">
-                    {stats.activeEmployees}/{stats.totalEmployees}
-                  </Badge>
+            <div className="flex items-center space-x-4">
+              {isAuthenticated && user && (
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.picture} alt={user.name || user.email} />
+                    <AvatarFallback>
+                      {user.name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-white text-sm">{user.name || user.email}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Tasks Completed</span>
-                  <span className="text-sm font-medium">{stats.completedTasks}/{stats.totalTasks}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Productivity</span>
-                  <span className="text-sm font-medium text-green-400">{stats.productivity}%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      {/* Main Content */}
-        <div className="flex-1 p-6">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-3xl font-bold">Dashboard</h1>
-              <div className="flex items-center gap-4">
-                <select
-                  value={selectedTimeframe}
-                  onChange={(e) => setSelectedTimeframe(e.target.value)}
-                  className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white"
-                >
-                  <option value="24h">Last 24 hours</option>
-                  <option value="7d">Last 7 days</option>
-                  <option value="30d">Last 30 days</option>
-                  <option value="90d">Last 90 days</option>
-                </select>
-                <Button onClick={handleHireEmployee}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Hire AI Employee
-                </Button>
-              </div>
-            </div>
-            <p className="text-gray-400">
-              Monitor your AI workforce performance and manage tasks
-            </p>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-400">Total Employees</p>
-                    <p className="text-2xl font-bold">{stats.totalEmployees}</p>
-                  </div>
-                  <Users className="h-8 w-8 text-blue-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-900 border-gray-800">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-400">Hours Worked</p>
-                    <p className="text-2xl font-bold">{stats.totalHours}</p>
-                  </div>
-                  <Clock className="h-8 w-8 text-green-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-900 border-gray-800">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-400">Cost Savings</p>
-                    <p className="text-2xl font-bold">${stats.costSavings.toLocaleString()}</p>
-                  </div>
-                  <DollarSign className="h-8 w-8 text-yellow-500" />
-                </div>
-              </CardContent>
-              </Card>
-
-            <Card className="bg-gray-900 border-gray-800">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-400">Productivity</p>
-                    <p className="text-2xl font-bold">{stats.productivity}%</p>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-purple-500" />
-                </div>
-              </CardContent>
-              </Card>
-          </div>
-
-          {/* AI Employees */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">AI Employees</h2>
-              <Button variant="outline" asChild>
-                <Link to="/marketplace">View All</Link>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:bg-white/20"
+              >
+                <Bell className="h-5 w-5" />
               </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:bg-white/20"
+              >
+                <Settings className="h-5 w-5" />
+              </Button>
+              <LogoutButton />
+              <Button
+                variant="outline"
+                onClick={() => navigate('/marketplace')}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Hire AI Employee
+              </Button>
+            </div>
           </div>
+        </div>
+      </div>
 
-            <BentoGrid className="max-w-6xl">
-              {aiEmployees.map(employee => (
-                <div key={employee.id} className="col-span-3 lg:col-span-1">
-                  <Card className="bg-gray-900 border-gray-800 hover:border-red-500 transition-colors">
-                    <CardHeader>
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="relative">
-                            <img
-                              src={employee.avatar}
-                              alt={employee.name}
-                              className="h-12 w-12 rounded-full"
-                            />
-                            <div className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-gray-900 ${getStatusColor(employee.status)}`} />
-                          </div>
-          <div>
-                            <CardTitle className="text-lg">{employee.name}</CardTitle>
-                      <CardDescription>{employee.role}</CardDescription>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-300">Total Employees</CardTitle>
+              <Users className="h-4 w-4 text-slate-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.totalEmployees}</div>
+              <p className="text-xs text-slate-400">
+                {stats.activeEmployees} active now
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-300">Tasks Completed</CardTitle>
+              <Activity className="h-4 w-4 text-slate-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.tasksCompleted}</div>
+              <p className="text-xs text-slate-400">
+                This month
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-300">Total Hours</CardTitle>
+              <Clock className="h-4 w-4 text-slate-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.totalHours}</div>
+              <p className="text-xs text-slate-400">
+                Hours worked
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-300">Performance</CardTitle>
+              <TrendingUp className="h-4 w-4 text-slate-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">92%</div>
+              <p className="text-xs text-slate-400">
+                Average rating
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* AI Employees */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">My AI Employees</h2>
+              <Button
+                variant="outline"
+                onClick={() => navigate('/marketplace')}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Employee
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {aiEmployees.map((employee) => (
+                <Card 
+                  key={employee.id} 
+                  className={`bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer ${
+                    selectedEmployee === employee.id ? 'ring-2 ring-blue-500' : ''
+                  }`}
+                  onClick={() => setSelectedEmployee(employee.id)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="relative">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={employee.avatar} alt={employee.name} />
+                            <AvatarFallback>
+                              <Bot className="h-6 w-6" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white ${getStatusColor(employee.status)}`} />
+                        </div>
+                        
+                        <div>
+                          <h3 className="text-lg font-semibold text-white">{employee.name}</h3>
+                          <p className="text-slate-300">{employee.role}</p>
+                          <div className="flex items-center space-x-4 mt-1">
+                            <div className="flex items-center space-x-1">
+                              <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                              <span className="text-sm text-slate-300">{employee.rating}</span>
+                            </div>
+                            <span className="text-sm text-slate-400">Last active: {employee.lastActive}</span>
                           </div>
                         </div>
-                        <Badge variant="outline" className="text-xs">
-                          {employee.status}
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <div className="text-right">
+                          <div className="text-sm text-slate-300">{employee.tasksCompleted} tasks</div>
+                          <div className="text-sm text-slate-400">{employee.hoursWorked}h worked</div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              navigate(`/chat/${employee.id}`)
+                            }}
+                            className="text-white hover:bg-white/20"
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-white hover:bg-white/20"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {employee.skills.map((skill) => (
+                        <Badge key={skill} variant="secondary" className="bg-blue-600/20 text-blue-300 border-blue-500/30">
+                          {skill}
                         </Badge>
+                      ))}
+                    </div>
+
+                    <div className="mt-4">
+                      <div className="flex items-center justify-between text-sm text-slate-300 mb-1">
+                        <span>Performance</span>
+                        <span>{employee.performance}%</span>
                       </div>
-                      
-                      {employee.currentTask && (
-                        <div className="mb-4">
-                          <p className="text-sm text-gray-400 mb-1">Current Task</p>
-                          <p className="text-sm">{employee.currentTask}</p>
-                        </div>
-                      )}
-                    </CardHeader>
-                    
-                    <CardContent>
-                      <div className="space-y-3 mb-4">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Tasks Completed</span>
-                          <span>{employee.tasksCompleted}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Hours Worked</span>
-                          <span>{employee.hoursWorked}h</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Rating</span>
-                          <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                            <span>{employee.rating}</span>
-                          </div>
-                        </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${employee.performance}%` }}
+                        />
                       </div>
-                      
-                      <div className="flex gap-2">
-                        <Button size="sm" className="flex-1">
-                          <MessageSquare className="mr-2 h-4 w-4" />
-                          Chat
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Settings className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
-            </BentoGrid>
+            </div>
           </div>
 
           {/* Tasks */}
-          <div className="mb-8">
+          <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Recent Tasks</h2>
-              <Button variant="outline">
-                <Plus className="mr-2 h-4 w-4" />
-                New Task
+              <h2 className="text-2xl font-bold text-white">Recent Tasks</h2>
+              <Button
+                variant="outline"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                View All
+                <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             </div>
-            
+
             <div className="space-y-4">
-              {tasks.map(task => (
-                <Card key={task.id} className="bg-gray-900 border-gray-800">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div>
-                          <h3 className="font-semibold">{task.title}</h3>
-                          <p className="text-sm text-gray-400">{task.description}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge 
-                          variant="outline" 
-                          className={getPriorityColor(task.priority)}
-                        >
-                          {task.priority}
-                        </Badge>
-                        <Badge 
-                          variant={task.status === 'completed' ? 'default' : 'secondary'}
-                          className={
-                            task.status === 'completed' 
-                              ? 'bg-green-500/20 text-green-400' 
-                              : task.status === 'in-progress'
-                              ? 'bg-yellow-500/20 text-yellow-400'
-                              : 'bg-gray-500/20 text-gray-400'
-                          }
-                        >
-                          {task.status}
-                        </Badge>
-                      </div>
+              {tasks.map((task) => (
+                <Card key={task.id} className="bg-white/10 backdrop-blur-md border-white/20">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="text-sm font-semibold text-white">{task.title}</h3>
+                      <Badge className={getPriorityColor(task.priority)}>
+                        {task.priority}
+                      </Badge>
                     </div>
                     
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-4 text-sm text-gray-400">
-                        <span>Assigned to: {task.assignedTo}</span>
-                        <span>Created: {task.createdAt.toLocaleDateString()}</span>
-                        {task.dueDate && (
-                          <span>Due: {task.dueDate.toLocaleDateString()}</span>
-                        )}
-                      </div>
+                    <p className="text-xs text-slate-300 mb-3">{task.description}</p>
+                    
+                    <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+                      <span>Assigned to: {task.assignedTo}</span>
+                      <span>Due: {task.dueDate}</span>
                     </div>
                     
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <div className="flex justify-between text-sm mb-1">
+                    <div className="flex items-center justify-between">
+                      <Badge className={getStatusColor2(task.status)}>
+                        {task.status}
+                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+                          <Play className="h-3 w-3" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+                          <Pause className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {task.status === 'in-progress' && (
+                      <div className="mt-3">
+                        <div className="flex items-center justify-between text-xs text-slate-300 mb-1">
                           <span>Progress</span>
                           <span>{task.progress}%</span>
                         </div>
-                        <Progress value={task.progress} className="h-2" />
+                        <div className="w-full bg-slate-700 rounded-full h-1.5">
+                          <div 
+                            className="bg-gradient-to-r from-blue-500 to-purple-600 h-1.5 rounded-full transition-all duration-300"
+                            style={{ width: `${task.progress}%` }}
+                          />
+                        </div>
                       </div>
-                      
-                      <div className="flex gap-2">
-                        {task.status === 'pending' && (
-                          <Button size="sm" onClick={handleStartTask}>
-                            <Play className="mr-2 h-4 w-4" />
-                            Start
-                          </Button>
-                        )}
-                        {task.status === 'in-progress' && (
-                          <>
-                            <Button size="sm" variant="outline" onClick={handlePauseTask}>
-                              <Pause className="mr-2 h-4 w-4" />
-                              Pause
-                            </Button>
-                            <Button size="sm" onClick={handleCompleteTask}>
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                              Complete
-                            </Button>
-                          </>
-                        )}
-                        {task.status === 'completed' && (
-                          <Button size="sm" variant="outline">
-                            <Download className="mr-2 h-4 w-4" />
-                            Download
-                        </Button>
-                        )}
-                      </div>
-                    </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-          </div>
-
-          {/* Activity Feed */}
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Recent Activity</h2>
-            <Card className="bg-gray-900 border-gray-800">
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-2 w-2 bg-green-500 rounded-full" />
-                    <div className="flex-1">
-                      <p className="text-sm">Claude Engineer completed "Build user authentication system"</p>
-                      <p className="text-xs text-gray-400">2 hours ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-2 w-2 bg-blue-500 rounded-full" />
-                    <div className="flex-1">
-                      <p className="text-sm">GPT Marketer started working on "Create marketing campaign"</p>
-                      <p className="text-xs text-gray-400">4 hours ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-2 w-2 bg-yellow-500 rounded-full" />
-                    <div className="flex-1">
-                      <p className="text-sm">Gemini Analyst is analyzing user behavior data</p>
-                      <p className="text-xs text-gray-400">6 hours ago</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-              </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
+      </div>
     </div>
   )
 }
