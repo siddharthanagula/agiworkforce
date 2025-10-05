@@ -13,6 +13,7 @@
     "@agentuity/sdk": "^0.0.150",
     "@ai-sdk/anthropic": "^2.0.23",
     "@anthropic-ai/sdk": "^0.65.0",
+    "@auth0/auth0-react": "^2.5.0",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
