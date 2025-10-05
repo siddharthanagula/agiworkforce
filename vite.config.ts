@@ -11,11 +11,12 @@ export default defineConfig({
     },
   },
   build: {
-    target: 'ES2020',
-    minify: 'terser',
+    target: 'esnext',
+    minify: 'esbuild',
     sourcemap: false,
     chunkSizeWarningLimit: 5000,
     rollupOptions: {
+      external: [],
       output: {
         manualChunks: (id) => {
           // Core React dependencies - keep React and React-DOM together
