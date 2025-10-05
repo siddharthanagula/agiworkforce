@@ -1,11 +1,18 @@
 import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Bot, Code, BarChart, Megaphone, HeadphonesIcon, Database, PenTool, Shield } from 'lucide-react'
+import { BentoDemo } from '@/components/ui/bento-grid-demo'
+import { EmptyState } from '@/components/ui/empty-state'
+import { TestimonialsSectionDemo } from '@/components/ui/testimonials-with-marquee-demo'
+import { toast } from 'sonner'
+import { Bot, Code, BarChart, Megaphone, HeadphonesIcon, Database, PenTool, Shield, Search, FileQuestion } from 'lucide-react'
 import type { AIEmployee } from '@/types'
 
 export default function MarketplacePage() {
-  const aiEmployees: (AIEmployee & { icon: typeof Bot })[] = [
+  const [searchTerm, setSearchTerm] = useState('')
+  
+  const allEmployees: (AIEmployee & { icon: typeof Bot })[] = [
     {
       id: '1',
       name: 'Claude Engineer',
@@ -85,6 +92,23 @@ export default function MarketplacePage() {
     },
   ]
 
+  // Filter employees based on search term
+  const filteredEmployees = allEmployees.filter(employee =>
+    employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    employee.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    employee.description.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const handleHireEmployee = (employeeName: string) => {
+    toast.success("AI Employee Hired!", {
+      description: `${employeeName} has been added to your workforce`,
+      action: {
+        label: "View Dashboard",
+        onClick: () => window.location.href = '/dashboard'
+      }
+    })
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
@@ -116,9 +140,37 @@ export default function MarketplacePage() {
             </p>
           </div>
 
+          {/* AI Capabilities Showcase */}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl md:text-4xl font-bold">What AI Employees Can Do</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Discover the powerful capabilities of our AI workforce through interactive examples
+              </p>
+            </div>
+            <BentoDemo />
+          </div>
+
           {/* AI Employees Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {aiEmployees.map((employee) => (
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl md:text-4xl font-bold">Available AI Employees</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Choose from our specialized AI employees, each with unique skills and expertise
+              </p>
+              <div className="max-w-md mx-auto">
+                <input
+                  type="text"
+                  placeholder="Search AI employees..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+            </div>
+            {filteredEmployees.length > 0 ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredEmployees.map((employee) => (
               <Card key={employee.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <employee.icon className="h-16 w-16 text-primary mb-4" />
@@ -145,7 +197,7 @@ export default function MarketplacePage() {
                     <span className="text-2xl font-bold text-primary">
                       ${employee.price}/mo
                     </span>
-                    <Button>Hire Now</Button>
+                    <Button onClick={() => handleHireEmployee(employee.name)}>Hire Now</Button>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Powered by {employee.provider}
@@ -153,8 +205,25 @@ export default function MarketplacePage() {
                 </CardContent>
               </Card>
             ))}
+              </div>
+            ) : (
+              <div className="flex justify-center">
+                <EmptyState
+                  title="No AI Employees Found"
+                  description="Try adjusting your search terms or browse all available AI employees."
+                  icons={[Search, FileQuestion]}
+                  action={{
+                    label: "Clear Search",
+                    onClick: () => setSearchTerm('')
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Testimonials Section */}
+        <TestimonialsSectionDemo />
       </main>
     </div>
   )

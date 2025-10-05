@@ -2,13 +2,18 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Bot, MessageSquare, LogOut, User } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
+import { toast } from 'sonner'
+import { Bot, MessageSquare, LogOut, User, Users, Zap } from 'lucide-react'
 
 export default function DashboardPage() {
   const { user, logout } = useAuth()
 
   const handleLogout = () => {
     logout()
+    toast.success("Logged out successfully", {
+      description: "You have been logged out of your account"
+    })
   }
 
   const hiredEmployees = [
@@ -96,19 +101,17 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>No AI Employees Yet</CardTitle>
-                  <CardDescription>
-                    Visit the marketplace to hire your first AI employee
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/marketplace">
-                    <Button>Browse Marketplace</Button>
-                  </Link>
-                </CardContent>
-              </Card>
+              <div className="flex justify-center">
+                <EmptyState
+                  title="No AI Employees Hired"
+                  description="Start building your AI workforce by hiring specialized AI employees for your business needs."
+                  icons={[Bot, Users, Zap]}
+                  action={{
+                    label: "Browse AI Employees",
+                    onClick: () => window.location.href = '/marketplace'
+                  }}
+                />
+              </div>
             )}
           </div>
         </div>

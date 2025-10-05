@@ -3,7 +3,11 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { Send, Bot, User as UserIcon, ArrowLeft } from 'lucide-react'
+import { AIVoiceInput } from '@/components/ui/ai-voice-input'
+import { PromptInputBox } from '@/components/ui/ai-prompt-box'
+import { EmptyState } from '@/components/ui/empty-state'
+import { toast } from 'sonner'
+import { Send, Bot, User as UserIcon, ArrowLeft, Mic, MessageSquare, Brain } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { sendMessage, createChatSession, getChatMessages } from '@/lib/agents/chat-service'
 import type { ChatMessage } from '@/types'
@@ -19,6 +23,8 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isInitializing, setIsInitializing] = useState(true)
+  const [isVoiceMode, setIsVoiceMode] = useState(false)
+  const [inputMode, setInputMode] = useState<'basic' | 'advanced'>('basic')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -131,6 +137,58 @@ export default function ChatPage() {
     }
   }
 
+  const handleVoiceStart = () => {
+    console.log('Voice recording started')
+  }
+
+  const handleVoiceStop = (duration: number) => {
+    console.log(`Voice recording stopped after ${duration} seconds`)
+    // In a real implementation, you would process the voice input here
+    // For now, we'll just simulate setting some text
+    setInput('Voice input received (simulated)')
+  }
+
+  const handlePromptSend = async (message: string, files?: File[]) => {
+    if (!message.trim() || !sessionId || !user || !employeeId) return
+
+    // Optimistically add user message to UI
+    const tempUserMessage: ChatMessage = {
+      id: `temp-${Date.now()}`,
+      role: 'user',
+      content: message,
+      timestamp: new Date(),
+    }
+    setMessages((prev) => [...prev, tempUserMessage])
+    setIsLoading(true)
+
+    try {
+      // Send message and get AI response
+      const aiMessage = await sendMessage({
+        sessionId,
+        userId: user.sub || user.email || 'demo-user',
+        employeeId,
+        employeeRole,
+        content: message,
+      })
+
+      // Update messages with actual AI response
+      setMessages((prev) => [...prev, aiMessage])
+    } catch (error) {
+      console.error('Failed to send message:', error)
+
+      // Fallback error message
+      const errorMessage: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: 'Sorry, I encountered an error processing your request. Please try again.',
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   if (isInitializing) {
     return (
       <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -163,7 +221,25 @@ export default function ChatPage() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
+        {messages.length === 0 ? (
+          <div className="flex justify-center items-center h-full">
+            <EmptyState
+              title="Start a Conversation"
+              description="Send a message to begin chatting with your AI employee."
+              icons={[MessageSquare, Brain]}
+              action={{
+                label: "Type a message below",
+                onClick: () => {
+                  // Focus on the input field
+                  const inputElement = document.querySelector('textarea, input') as HTMLElement;
+                  inputElement?.focus();
+                }
+              }}
+            />
+          </div>
+        ) : (
+          <>
+            {messages.map((message) => (
           <div
             key={message.id}
             className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -201,22 +277,60 @@ export default function ChatPage() {
           </div>
         )}
         <div ref={messagesEndRef} />
+          </>
+        )}
       </div>
 
       {/* Input */}
       <div className="border-t bg-white p-4">
-        <div className="container mx-auto max-w-4xl flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your message..."
-            className="flex-1"
-            disabled={isLoading}
-          />
-          <Button onClick={handleSend} disabled={isLoading || !input.trim()}>
-            <Send className="h-4 w-4" />
-          </Button>
+        <div className="container mx-auto max-w-4xl">
+          {/* Input Mode Toggle */}
+          <div className="flex justify-center mb-4 gap-2">
+            <Button
+              variant={inputMode === 'basic' ? "default" : "outline"}
+              onClick={() => setInputMode('basic')}
+              className="flex items-center gap-2"
+            >
+              <Send className="h-4 w-4" />
+              Basic Input
+            </Button>
+            <Button
+              variant={inputMode === 'advanced' ? "default" : "outline"}
+              onClick={() => setInputMode('advanced')}
+              className="flex items-center gap-2"
+            >
+              <Mic className="h-4 w-4" />
+              Advanced Input
+            </Button>
+          </div>
+
+          {inputMode === 'advanced' ? (
+            /* Advanced PromptInputBox */
+            <div className="flex justify-center">
+              <div className="w-full max-w-2xl">
+                <PromptInputBox
+                  onSend={handlePromptSend}
+                  isLoading={isLoading}
+                  placeholder="Ask your AI employee anything..."
+                />
+              </div>
+            </div>
+          ) : (
+            /* Basic Input Mode */
+            <div className="flex gap-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type your message..."
+                className="flex-1"
+                disabled={isLoading}
+              />
+              <Button onClick={handleSend} disabled={isLoading || !input.trim()}>
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
