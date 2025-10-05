@@ -13,17 +13,24 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
+    <div className="min-h-screen bg-black">
       {/* Navigation */}
-      <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+      <nav className="border-b border-red-600 bg-black/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">AGI Workforce</h1>
+          <div className="flex items-center gap-3">
+            <img
+              src="https://i.ibb.co/ZVQxKGT/agi-workforce-logo.png"
+              alt="AGI Workforce"
+              className="h-12 w-auto"
+            />
+            <h1 className="text-2xl font-bold text-white">AGI WORKFORCE</h1>
+          </div>
           <div className="flex gap-4">
             <Link to="/login">
-              <Button variant="ghost">Sign in</Button>
+              <Button variant="ghost" className="text-white hover:text-red-500">Sign in</Button>
             </Link>
             <Link to="/register">
-              <Button>Get Started</Button>
+              <Button className="bg-red-600 hover:bg-red-700">Get Started</Button>
             </Link>
           </div>
         </div>
@@ -32,7 +39,12 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto space-y-8">
-          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <img
+            src="https://i.ibb.co/ZVQxKGT/agi-workforce-logo.png"
+            alt="AGI Workforce Logo"
+            className="h-32 w-auto mx-auto mb-8"
+          />
+          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent">
             Hire AI Employees for Your Business
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground">
@@ -100,21 +112,21 @@ export default function LandingPage() {
 
       {/* AI Employees Showcase */}
       <section className="container mx-auto px-4 py-20">
-        <h2 className="text-3xl md:text-5xl font-bold text-center mb-12">
+        <h2 className="text-3xl md:text-5xl font-bold text-center mb-12 text-white">
           Meet Your AI Employees
         </h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {aiEmployees.map((employee, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
+            <Card key={index} className="bg-zinc-900 border-red-600/30 hover:border-red-600 hover:shadow-lg hover:shadow-red-600/20 transition-all">
               <CardHeader>
-                <employee.icon className="h-16 w-16 text-primary mb-4" />
-                <CardTitle>{employee.name}</CardTitle>
-                <CardDescription>{employee.description}</CardDescription>
+                <employee.icon className="h-16 w-16 text-red-500 mb-4" />
+                <CardTitle className="text-white">{employee.name}</CardTitle>
+                <CardDescription className="text-gray-400">{employee.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold text-primary">${employee.price}/mo</p>
+                <p className="text-2xl font-bold text-red-500">${employee.price}/mo</p>
                 <Link to="/register">
-                  <Button className="w-full mt-4">Hire Now</Button>
+                  <Button className="w-full mt-4 bg-red-600 hover:bg-red-700">Hire Now</Button>
                 </Link>
               </CardContent>
             </Card>
@@ -124,7 +136,7 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-20 text-center">
-        <div className="max-w-3xl mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-12 text-white">
+        <div className="max-w-3xl mx-auto bg-gradient-to-r from-red-600 to-red-800 rounded-2xl p-12 text-white border-2 border-red-500">
           <h2 className="text-4xl font-bold mb-4">
             Ready to Build Your AI Workforce?
           </h2>
@@ -132,7 +144,7 @@ export default function LandingPage() {
             Join thousands of businesses using AI employees to scale faster.
           </p>
           <Link to="/register">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
+            <Button size="lg" variant="secondary" className="text-lg px-8 py-6 bg-white text-red-600 hover:bg-gray-100">
               Get Started Free
             </Button>
           </Link>
@@ -140,13 +152,13 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-white py-8">
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
+      <footer className="border-t border-red-600 bg-black py-8">
+        <div className="container mx-auto px-4 text-center text-gray-400">
           <p>&copy; 2025 AGI Workforce. All rights reserved.</p>
           <div className="flex justify-center gap-6 mt-4">
-            <a href="#" className="hover:text-primary">Privacy</a>
-            <a href="#" className="hover:text-primary">Terms</a>
-            <a href="#" className="hover:text-primary">Contact</a>
+            <a href="#" className="hover:text-red-500">Privacy</a>
+            <a href="#" className="hover:text-red-500">Terms</a>
+            <a href="#" className="hover:text-red-500">Contact</a>
           </div>
         </div>
       </footer>
