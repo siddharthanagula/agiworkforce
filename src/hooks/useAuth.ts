@@ -1,7 +1,29 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCallback } from 'react';
+import { isAuth0Configured } from '@/lib/auth0';
 
 export function useAuth() {
+  // Check if Auth0 is configured
+  if (!isAuth0Configured()) {
+    // Return fallback values when Auth0 is not configured
+    return {
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+      login: async () => {
+        console.warn('Auth0 is not configured. Please set up environment variables.');
+      },
+      signup: async () => {
+        console.warn('Auth0 is not configured. Please set up environment variables.');
+      },
+      logout: () => {
+        console.warn('Auth0 is not configured. Please set up environment variables.');
+      },
+      getToken: async () => null,
+    };
+  }
+
   const {
     user,
     isAuthenticated,
