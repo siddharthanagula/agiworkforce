@@ -1,1 +1,16 @@
-{"projectId":"prj_nI8YvrjbmbwwC0OaK4e7VdRxQh4H","orgId":"team_QAqU2q6NTV4xxn971rfTy1F4","projectName":"agiworkforce-app"}
+{
+  "projectId": "prj_nI8YvrjbmbwwC0OaK4e7VdRxQh4H",
+  "orgId": "team_QAqU2q6NTV4xxn971rfTy1F4",
+  "projectName": "agiworkforce-app",
+  "settings": {
+    "createdAt": 1759650955218,
+    "framework": "vite",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "22.x"
+  }
+}
