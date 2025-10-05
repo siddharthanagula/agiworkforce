@@ -18,15 +18,15 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Core React dependencies
+          // Core React dependencies - keep React and React-DOM together
           if (id.includes('react') || id.includes('react-dom')) {
             return 'react-vendors'
           }
-          // Router
-          if (id.includes('react-router-dom')) {
-            return 'router'
+          // Router - keep with React dependencies
+          if (id.includes('react-router-dom') || id.includes('react-router')) {
+            return 'react-vendors'
           }
-          // UI Components
+          // UI Components that depend on React
           if (id.includes('@radix-ui') || id.includes('framer-motion') || id.includes('lucide-react')) {
             return 'ui-components'
           }
@@ -58,6 +58,10 @@ export default defineConfig({
           if (id.includes('process')) {
             return 'utils'
           }
+          // Auth0 and other React-dependent libraries
+          if (id.includes('@auth0') || id.includes('@tanstack/react-query') || id.includes('zustand') || id.includes('sonner')) {
+            return 'react-vendors'
+          }
           // Default chunk for other dependencies
           if (id.includes('node_modules')) {
             return 'vendor'
@@ -73,5 +77,8 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
     __BUILD_DATE__: JSON.stringify(new Date().toISOString()),
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom'],
   },
 })
