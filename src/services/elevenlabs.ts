@@ -1,5 +1,6 @@
 import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
 import { AIEmployeeType } from './gemini';
+import { safeSetActivityWithErrorHandling, safeThrow } from '../utils/errorHandling';
 
 // Global type declaration for ElevenLabs
 declare global {
@@ -15,31 +16,39 @@ const API_KEY = (import.meta as any).env?.VITE_ELEVENLABS_API_KEY || '';
 
 let client: ElevenLabsClient | null = null;
 
-// Initialize global objects to prevent undefined errors
+// Initialize global objects with comprehensive error handling
 if (typeof window !== 'undefined') {
-  // Ensure global objects exist with comprehensive initialization
-  if (!window.elevenLabs) {
-    window.elevenLabs = {};
+  try {
+    // Ensure global objects exist with comprehensive initialization
+    if (!window.elevenLabs) {
+      window.elevenLabs = {};
+    }
+    
+    // Use safe Activity property assignment
+    const activityInitialized = safeSetActivityWithErrorHandling(
+      window.elevenLabs,
+      {
+        initialized: true,
+        timestamp: Date.now(),
+        version: '1.0.0'
+      },
+      'elevenlabs-service'
+    );
+    
+    if (!activityInitialized) {
+      safeThrow('Failed to initialize Activity property in ElevenLabs service');
+    }
+    
+    // Test assignment to ensure it works
+    try {
+      window.elevenLabs.Activity.test = 'service-test';
+      delete window.elevenLabs.Activity.test;
+    } catch (error) {
+      safeThrow('Activity property test failed in ElevenLabs service', error);
+    }
+  } catch (error) {
+    safeThrow('ElevenLabs service initialization failed', error);
   }
-  if (!window.elevenLabs.Activity) {
-    window.elevenLabs.Activity = {};
-  }
-  
-  // Additional safeguards for Activity property
-  if (!window.elevenLabs.Activity) {
-    window.elevenLabs.Activity = {
-      initialized: true,
-      timestamp: Date.now()
-    };
-  }
-  
-  // Ensure the Activity object is always available
-  Object.defineProperty(window.elevenLabs, 'Activity', {
-    value: window.elevenLabs.Activity || {},
-    writable: true,
-    configurable: true,
-    enumerable: true
-  });
 }
 
 // Initialize the ElevenLabs client

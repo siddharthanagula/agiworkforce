@@ -9,7 +9,8 @@
     "build:vercel": "rm -rf node_modules package-lock.json && npm install && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "setup-auth0": "node scripts/setup-auth0.js"
+    "setup-auth0": "node scripts/setup-auth0.js",
+    "test:smoke": "node scripts/smoke-test.js"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.5.0",
@@ -47,6 +48,7 @@
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
     "postcss": "^8.5.6",
+    "puppeteer": "^24.23.0",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "~5.9.3",

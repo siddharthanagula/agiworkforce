@@ -5,6 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AGI Workforce - Hire AI Employees</title>
+    <script>
+      // Early globals to prevent vendor/libs writing to undefined targets
+      (function () {
+        try {
+          if (typeof window !== 'undefined') {
+            if (!window.elevenLabs) window.elevenLabs = {};
+            if (!window.elevenLabs.Activity) window.elevenLabs.Activity = {};
+            if (!window.Activity) window.Activity = {}; // fallback for libs using global Activity
+            if (!window.agentuity) window.agentuity = {};
+            if (!window.globalState) window.globalState = {};
+          }
+        } catch (e) {
+          // no-op: defensive
+        }
+      })();
+    </script>
     <meta name="description" content="Hire, manage, and collaborate with specialized AI employees. Build your dream team of artificial intelligence workers." />
   </head>
   <body>

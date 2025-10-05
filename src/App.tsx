@@ -9,6 +9,7 @@ import MarketplacePage from '@/pages/MarketplacePage'
 import EnhancedChatPage from '@/pages/chat/EnhancedChatPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import { Toaster } from '@/components/ui/sonner'
+// import { withErrorBoundary } from '@/utils/errorHandling'
 
 // Global type declarations
 declare global {
@@ -20,19 +21,27 @@ declare global {
   }
 }
 
-// Initialize global objects to prevent undefined errors
+// Initialize global objects with error handling
 if (typeof window !== 'undefined') {
-  // Initialize ElevenLabs global objects
-  if (!window.elevenLabs) {
-    window.elevenLabs = {};
-  }
-  if (!window.elevenLabs.Activity) {
-    window.elevenLabs.Activity = {};
-  }
-  
-  // Initialize other potential global objects
-  if (!window.agentuity) {
-    window.agentuity = {};
+  try {
+    // Initialize ElevenLabs global objects
+    if (!window.elevenLabs) {
+      window.elevenLabs = {};
+    }
+    if (!window.elevenLabs.Activity) {
+      window.elevenLabs.Activity = {
+        initialized: true,
+        timestamp: Date.now(),
+        context: 'App.tsx'
+      };
+    }
+    
+    // Initialize other potential global objects
+    if (!window.agentuity) {
+      window.agentuity = {};
+    }
+  } catch (error) {
+    console.error('App.tsx global object initialization failed:', error);
   }
 }
 
