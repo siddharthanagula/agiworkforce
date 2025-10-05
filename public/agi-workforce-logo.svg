@@ -1,0 +1,51 @@
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="200" height="80" fill="#1a1a1a" rx="8"/>
+  
+  <!-- Human head profile with circuit pattern -->
+  <g transform="translate(20, 15)">
+    <!-- Head outline -->
+    <path d="M25 10 Q30 5 35 10 Q40 15 38 25 Q36 35 30 40 Q25 42 20 40 Q15 35 12 25 Q10 15 15 10 Q20 5 25 10" 
+          fill="#e5e5e5" stroke="#d0d0d0" stroke-width="1"/>
+    
+    <!-- Circuit board pattern on right side -->
+    <g fill="#00b4d8" stroke="#00b4d8" stroke-width="0.5">
+      <!-- Main circuit lines -->
+      <path d="M30 12 L35 12 L35 15 L30 15 Z"/>
+      <path d="M32 15 L32 20 L35 20 L35 18 L32 18 Z"/>
+      <path d="M30 20 L35 20 L35 22 L30 22 Z"/>
+      <path d="M32 22 L32 25 L35 25 L35 23 L32 23 Z"/>
+      <path d="M30 25 L35 25 L35 28 L30 28 Z"/>
+      
+      <!-- Circuit nodes -->
+      <circle cx="32.5" cy="13.5" r="0.8"/>
+      <circle cx="33.5" cy="16.5" r="0.6"/>
+      <circle cx="32.5" cy="21" r="0.8"/>
+      <circle cx="33.5" cy="24" r="0.6"/>
+      <circle cx="32.5" cy="26.5" r="0.8"/>
+      
+      <!-- Connecting lines -->
+      <path d="M32.5 13.5 L33.5 16.5" stroke-width="0.3"/>
+      <path d="M33.5 16.5 L32.5 21" stroke-width="0.3"/>
+      <path d="M32.5 21 L33.5 24" stroke-width="0.3"/>
+      <path d="M33.5 24 L32.5 26.5" stroke-width="0.3"/>
+      
+      <!-- Additional circuit elements -->
+      <rect x="31" y="18" width="1" height="1" rx="0.2"/>
+      <rect x="31" y="23" width="1" height="1" rx="0.2"/>
+    </g>
+  </g>
+  
+  <!-- AGI text -->
+  <text x="70" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#00b4d8">
+    AGI
+  </text>
+  
+  <!-- WORKFORCE text -->
+  <text x="70" y="55" font-family="Arial, sans-serif" font-size="18" font-weight="normal" fill="#e5e5e5">
+    WORKFORCE
+  </text>
+  
+  <!-- Underline -->
+  <path d="M70 58 L140 58" stroke="#d0d0d0" stroke-width="1"/>
+</svg>

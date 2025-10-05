@@ -1,7 +1,29 @@
-import { supabase } from '@/lib/supabase';
 import { routeToAgent, type AgentRequest } from './router';
 import { sendMessageToGemini } from './gemini-service';
 import type { ChatMessage } from '@/types';
+
+// Helper functions for local storage
+function getChatSessionsFromStorage(): Record<string, any> {
+  try {
+    const sessions = localStorage.getItem('chat_sessions');
+    return sessions ? JSON.parse(sessions) : {};
+  } catch {
+    return {};
+  }
+}
+
+function getChatMessagesFromStorage(): Record<string, ChatMessage[]> {
+  try {
+    const messages = localStorage.getItem('chat_messages');
+    return messages ? JSON.parse(messages) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveChatMessagesToStorage(messages: Record<string, ChatMessage[]>): void {
+  localStorage.setItem('chat_messages', JSON.stringify(messages));
+}
 
 export interface CreateChatSessionParams {
   userId: string;
@@ -17,87 +39,55 @@ export interface SendMessageParams {
 }
 
 /**
- * Create a new chat session
+ * Create a new chat session using local storage
  */
 export async function createChatSession(params: CreateChatSessionParams): Promise<string> {
   const { userId, employeeId } = params;
-
-  const { data, error } = await supabase
-    .from('chat_sessions')
-    .insert({
-      user_id: userId,
-      employee_id: employeeId,
-    })
-    .select('id')
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to create chat session: ${error.message}`);
-  }
-
-  return data.id;
+  
+  const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  const session = {
+    id: sessionId,
+    userId,
+    employeeId,
+    createdAt: new Date().toISOString(),
+  };
+  
+  // Store in local storage
+  const sessions = getChatSessionsFromStorage();
+  sessions[sessionId] = session;
+  localStorage.setItem('chat_sessions', JSON.stringify(sessions));
+  
+  return sessionId;
 }
 
 /**
- * Get chat session by ID
+ * Get chat session by ID from local storage
  */
 export async function getChatSession(sessionId: string) {
-  const { data, error } = await supabase
-    .from('chat_sessions')
-    .select('*')
-    .eq('id', sessionId)
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to get chat session: ${error.message}`);
+  const sessions = getChatSessionsFromStorage();
+  const session = sessions[sessionId];
+  
+  if (!session) {
+    throw new Error(`Chat session not found: ${sessionId}`);
   }
-
-  return data;
+  
+  return session;
 }
 
 /**
- * Get all messages for a chat session
+ * Get all messages for a chat session from local storage
  */
 export async function getChatMessages(sessionId: string): Promise<ChatMessage[]> {
-  const { data, error } = await supabase
-    .from('chat_messages')
-    .select('*')
-    .eq('session_id', sessionId)
-    .order('timestamp', { ascending: true });
-
-  if (error) {
-    throw new Error(`Failed to get chat messages: ${error.message}`);
-  }
-
-  return data.map((msg) => ({
-    id: msg.id,
-    role: msg.role as 'user' | 'assistant' | 'system',
-    content: msg.content,
-    timestamp: new Date(msg.timestamp),
-    employeeId: msg.employee_id,
-  }));
+  const allMessages = getChatMessagesFromStorage();
+  return allMessages[sessionId] || [];
 }
 
 /**
- * Send a message and get AI response
+ * Send a message and get AI response using local storage
  */
 export async function sendMessage(params: SendMessageParams): Promise<ChatMessage> {
   const { sessionId, employeeId, employeeRole, content } = params;
-
-  // Save user message to database
-  const { error: userMessageError } = await supabase
-    .from('chat_messages')
-    .insert({
-      session_id: sessionId,
-      role: 'user',
-      content,
-    })
-    .select()
-    .single();
-
-  if (userMessageError) {
-    throw new Error(`Failed to save user message: ${userMessageError.message}`);
-  }
 
   // Get AI response using Gemini API (primary) or fallback to Claude routing
   let aiResponseContent: string;
@@ -118,65 +108,53 @@ export async function sendMessage(params: SendMessageParams): Promise<ChatMessag
     aiResponseContent = aiResponse.content;
   }
 
-  // Save AI response to database
-  const { data: assistantMessage, error: assistantMessageError } = await supabase
-    .from('chat_messages')
-    .insert({
-      session_id: sessionId,
-      role: 'assistant',
-      content: aiResponseContent,
-    })
-    .select()
-    .single();
-
-  if (assistantMessageError) {
-    throw new Error(`Failed to save assistant message: ${assistantMessageError.message}`);
-  }
-
-  return {
-    id: assistantMessage.id,
-    role: 'assistant',
-    content: aiResponseContent,
-    timestamp: new Date(assistantMessage.timestamp),
+  // Create user message
+  const userMessage: ChatMessage = {
+    id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    role: 'user',
+    content,
+    timestamp: new Date(),
     employeeId,
   };
+
+  // Create assistant message
+  const assistantMessage: ChatMessage = {
+    id: `assistant_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    role: 'assistant',
+    content: aiResponseContent,
+    timestamp: new Date(),
+    employeeId,
+  };
+
+  // Save both messages to local storage
+  const allMessages = getChatMessagesFromStorage();
+  if (!allMessages[sessionId]) {
+    allMessages[sessionId] = [];
+  }
+  allMessages[sessionId].push(userMessage, assistantMessage);
+  saveChatMessagesToStorage(allMessages);
+
+  return assistantMessage;
 }
 
 /**
- * Get user's chat sessions
+ * Get user's chat sessions from local storage
  */
 export async function getUserChatSessions(userId: string) {
-  const { data, error } = await supabase
-    .from('chat_sessions')
-    .select(`
-      *,
-      ai_employees (
-        id,
-        name,
-        role,
-        provider
-      )
-    `)
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    throw new Error(`Failed to get user chat sessions: ${error.message}`);
-  }
-
-  return data;
+  const sessions = getChatSessionsFromStorage();
+  return Object.values(sessions).filter((session: any) => session.userId === userId);
 }
 
 /**
- * Delete a chat session
+ * Delete a chat session from local storage
  */
 export async function deleteChatSession(sessionId: string) {
-  const { error } = await supabase
-    .from('chat_sessions')
-    .delete()
-    .eq('id', sessionId);
-
-  if (error) {
-    throw new Error(`Failed to delete chat session: ${error.message}`);
-  }
+  const sessions = getChatSessionsFromStorage();
+  delete sessions[sessionId];
+  localStorage.setItem('chat_sessions', JSON.stringify(sessions));
+  
+  // Also delete associated messages
+  const allMessages = getChatMessagesFromStorage();
+  delete allMessages[sessionId];
+  saveChatMessagesToStorage(allMessages);
 }

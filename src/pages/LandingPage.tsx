@@ -3,11 +3,10 @@ import { Button } from '@/components/ui/button'
 import { RainbowButton } from '@/components/ui/rainbow-button'
 import { AIVoiceInput } from '@/components/ui/ai-voice-input'
 import { PromptInputBox } from '@/components/ui/ai-prompt-box'
-import { BentoDemo } from '@/components/ui/bento-grid-demo'
-import { ExpandableChatDemo } from '@/components/ui/expandable-chat-demo'
-import { ImageExpansion } from '@/components/ui/scroll-expansion-hero-demo'
-import { TestimonialsSectionDemo } from '@/components/ui/testimonials-with-marquee-demo'
-import { VaporizeTextAIDemo } from '@/components/ui/vapour-text-effect-ai-demo'
+import { BentoGrid } from '@/components/ui/bento-grid'
+import ScrollExpandMedia from '@/components/ui/scroll-expansion-hero'
+import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee'
+import { VaporizeTextEffect } from '@/components/ui/vapour-text-effect'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { Bot, Sparkles, Zap, DollarSign, Users, MessageSquare } from 'lucide-react'
@@ -26,7 +25,14 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen">
       {/* Scroll Expansion Hero Section */}
-      <ImageExpansion />
+      <ScrollExpandMedia 
+        mediaType="image"
+        mediaSrc="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop"
+        bgImageSrc="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop"
+        title="AGI Workforce"
+        date="2025"
+        scrollToExpand="Scroll to explore"
+      />
       
       <div className="bg-black">
         {/* Navigation */}
@@ -34,19 +40,13 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <img
-              src="https://i.ibb.co/ZVQxKGT/agi-workforce-logo.png"
+              src="/agi-workforce-logo.svg"
               alt="AGI Workforce"
               className="h-12 w-auto"
             />
             <h1 className="text-2xl font-bold text-white">AGI WORKFORCE</h1>
           </div>
           <div className="flex gap-4">
-            <Link to="/scroll-demo" className="text-red-400 hover:text-red-300 text-sm">
-              Scroll Demo
-            </Link>
-            <Link to="/vaporize-demo" className="text-red-400 hover:text-red-300 text-sm">
-              Vaporize Demo
-            </Link>
             <Link to="/login">
               <Button variant="ghost" className="text-white hover:text-red-500">Sign in</Button>
             </Link>
@@ -183,7 +183,11 @@ export default function LandingPage() {
             Discover the powerful capabilities of our AI workforce through interactive examples
           </p>
         </div>
-        <BentoDemo />
+        <BentoGrid>
+          <div className="text-center text-muted-foreground">
+            <p>AI capabilities showcase will be displayed here</p>
+          </div>
+        </BentoGrid>
       </section>
 
       {/* AI Employees Showcase */}
@@ -216,12 +220,48 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold mb-8 text-white">
             Experience the Future of Text Animation
           </h2>
-          <VaporizeTextAIDemo />
+          <VaporizeTextEffect 
+            texts={["AGI Workforce", "AI Employees", "Future of Work"]}
+            font={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "70px",
+              fontWeight: 600
+            }}
+            color="rgb(239, 68, 68)"
+            spread={5}
+            density={5}
+            animation={{
+              vaporizeDuration: 2,
+              fadeInDuration: 1,
+              waitDuration: 1
+            }}
+          />
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <TestimonialsSectionDemo />
+      <TestimonialsSection 
+        title="What Our Customers Say"
+        description="Join thousands of businesses using AI employees"
+        testimonials={[
+          {
+            author: {
+              name: "Sarah Johnson",
+              handle: "@sarahj_ceo",
+              avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face"
+            },
+            text: "AGI Workforce has revolutionized how we handle customer support. Our AI employees work 24/7 and never get tired!"
+          },
+          {
+            author: {
+              name: "Mike Chen",
+              handle: "@mikechen_cto",
+              avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
+            },
+            text: "The AI developers from AGI Workforce have helped us build features faster than ever before."
+          }
+        ]}
+      />
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-20 text-center">

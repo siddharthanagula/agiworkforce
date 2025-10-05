@@ -3,10 +3,10 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { AIVoiceInput } from '@/components/ui/ai-voice-input'
+// import { AIVoiceInput } from '@/components/ui/ai-voice-input'
 import { PromptInputBox } from '@/components/ui/ai-prompt-box'
 import { EmptyState } from '@/components/ui/empty-state'
-import { toast } from 'sonner'
+// import { toast } from 'sonner'
 import { Send, Bot, User as UserIcon, ArrowLeft, Mic, MessageSquare, Brain } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { sendMessage, createChatSession, getChatMessages } from '@/lib/agents/chat-service'
@@ -23,7 +23,7 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isInitializing, setIsInitializing] = useState(true)
-  const [isVoiceMode, setIsVoiceMode] = useState(false)
+  // const [isVoiceMode, setIsVoiceMode] = useState(false)
   const [inputMode, setInputMode] = useState<'basic' | 'advanced'>('basic')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -137,18 +137,18 @@ export default function ChatPage() {
     }
   }
 
-  const handleVoiceStart = () => {
-    console.log('Voice recording started')
-  }
+  // const handleVoiceStart = () => {
+  //   console.log('Voice recording started')
+  // }
 
-  const handleVoiceStop = (duration: number) => {
-    console.log(`Voice recording stopped after ${duration} seconds`)
-    // In a real implementation, you would process the voice input here
-    // For now, we'll just simulate setting some text
-    setInput('Voice input received (simulated)')
-  }
+  // const handleVoiceStop = (duration: number) => {
+  //   console.log(`Voice recording stopped after ${duration} seconds`)
+  //   // In a real implementation, you would process the voice input here
+  //   // For now, we'll just simulate setting some text
+  //   setInput('Voice input received (simulated)')
+  // }
 
-  const handlePromptSend = async (message: string, files?: File[]) => {
+  const handlePromptSend = async (message: string, _files?: File[]) => {
     if (!message.trim() || !sessionId || !user || !employeeId) return
 
     // Optimistically add user message to UI

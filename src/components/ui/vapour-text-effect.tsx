@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState, createElement, useMemo, useCallback, memo } from "react";
+import React, { useRef, useEffect, useState, createElement, useMemo, useCallback, memo, lazy, Suspense } from "react";
 
 export const Component = () => {
     return (
@@ -28,12 +28,14 @@ export const Component = () => {
     )
 }
 
-export enum Tag {
-  H1 = "h1",
-  H2 = "h2",
-  H3 = "h3",
-  P = "p",
-}
+export const Tag = {
+  H1: "h1",
+  H2: "h2", 
+  H3: "h3",
+  P: "p",
+} as const;
+
+export type Tag = typeof Tag[keyof typeof Tag];
 
 type VaporizeTextCycleProps = {
   texts: string[];
@@ -82,7 +84,7 @@ declare global {
   }
 }
 
-export default function VaporizeTextCycle({
+function VaporizeTextCycle({
   texts = ["Next.js", "React"],
   font = {
     fontFamily: "sans-serif",
@@ -187,6 +189,7 @@ export default function VaporizeTextCycle({
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
       }
+      return undefined;
     }
   }, [isInView]);
 
@@ -482,7 +485,7 @@ const renderCanvas = ({
   particlesRef,
   globalDpr,
   currentTextIndex,
-  transformedDensity,
+  // transformedDensity,
 }: {
   framerProps: VaporizeTextCycleProps;
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -851,4 +854,21 @@ function useIsInView(ref: React.RefObject<HTMLElement>) {
   }, [ref]);
 
   return isInView;
+}
+
+// Lazy wrapper for the heavy VaporizeTextCycle component
+const LazyVaporizeTextCycle = lazy(() => Promise.resolve({ default: VaporizeTextCycle }))
+
+export function VaporizeTextEffect(props: VaporizeTextCycleProps) {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-32">
+        <div className="animate-pulse text-4xl font-bold text-red-500">
+          Loading...
+        </div>
+      </div>
+    }>
+      <LazyVaporizeTextCycle {...props} />
+    </Suspense>
+  )
 }

@@ -4,9 +4,9 @@ import {
   useEffect,
   useRef,
   useState,
-  ReactNode,
-  TouchEvent,
-  WheelEvent,
+  type ReactNode,
+  type TouchEvent,
+  type WheelEvent,
 } from 'react';
 import { motion } from 'framer-motion';
 

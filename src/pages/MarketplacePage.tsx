@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { BentoDemo } from '@/components/ui/bento-grid-demo'
+import { BentoGrid } from '@/components/ui/bento-grid'
 import { EmptyState } from '@/components/ui/empty-state'
-import { TestimonialsSectionDemo } from '@/components/ui/testimonials-with-marquee-demo'
+import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee'
 import { toast } from 'sonner'
 import { Bot, Code, BarChart, Megaphone, HeadphonesIcon, Database, PenTool, Shield, Search, FileQuestion } from 'lucide-react'
 import type { AIEmployee } from '@/types'
@@ -148,7 +148,11 @@ export default function MarketplacePage() {
                 Discover the powerful capabilities of our AI workforce through interactive examples
               </p>
             </div>
-            <BentoDemo />
+            <BentoGrid>
+              <div className="text-center text-muted-foreground">
+                <p>AI capabilities showcase will be displayed here</p>
+              </div>
+            </BentoGrid>
           </div>
 
           {/* AI Employees Grid */}
@@ -223,7 +227,28 @@ export default function MarketplacePage() {
         </div>
 
         {/* Testimonials Section */}
-        <TestimonialsSectionDemo />
+        <TestimonialsSection 
+          title="What Our Customers Say"
+          description="Join thousands of businesses using AI employees"
+          testimonials={[
+            {
+              author: {
+                name: "Sarah Johnson",
+                handle: "@sarahj_ceo",
+                avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face"
+              },
+              text: "AGI Workforce has revolutionized how we handle customer support. Our AI employees work 24/7 and never get tired!"
+            },
+            {
+              author: {
+                name: "Mike Chen",
+                handle: "@mikechen_cto",
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
+              },
+              text: "The AI developers from AGI Workforce have helped us build features faster than ever before."
+            }
+          ]}
+        />
       </main>
     </div>
   )

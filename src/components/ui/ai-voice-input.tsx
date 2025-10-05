@@ -31,7 +31,7 @@ export function AIVoiceInput({
   }, []);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    let intervalId: number;
 
     if (submitted) {
       onStart?.();
@@ -49,7 +49,7 @@ export function AIVoiceInput({
   useEffect(() => {
     if (!isDemo) return;
 
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: number;
     const runAnimation = () => {
       setSubmitted(true);
       timeoutId = setTimeout(() => {
