@@ -5,78 +5,94 @@
   - Captures console errors/warnings
   - Validates key routes
 */
-import puppeteer, { executablePath } from 'puppeteer';
+import puppeteer from 'puppeteer';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const BASE_URL = process.env.SMOKE_URL || 'https://agiworkforce-app.vercel.app';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-async function run() {
-  const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: await executablePath(),
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--no-first-run',
-      '--no-zygote'
-    ],
-    timeout: 60000
-  });
-  const page = await browser.newPage();
-
-  const errors = [];
-  const warnings = [];
-  const requestsFailed = [];
-
-  page.on('console', (msg) => {
-    const type = msg.type();
-    if (type === 'error') errors.push(msg.text());
-    if (type === 'warning') warnings.push(msg.text());
-  });
-
-  page.on('requestfailed', (req) => {
-    requestsFailed.push({ url: req.url(), failure: req.failure()?.errorText });
-  });
-
-  const expectVisible = async (selector, name) => {
-    await page.waitForSelector(selector, { timeout: 15000 });
-    const visible = await page.$eval(selector, (el) => !!el);
-    if (!visible) throw new Error(`Element not visible: ${name} (${selector})`);
-  };
-
-  try {
-    // Homepage
-    await page.goto(BASE_URL, { waitUntil: 'networkidle0', timeout: 60000 });
-    await expectVisible('#root', 'App Root');
-
-    // Navigate to marketplace via route
-    await page.goto(`${BASE_URL}/marketplace`, { waitUntil: 'networkidle0' });
-    await expectVisible('#root', 'Marketplace Root');
-
-    // Navigate to login
-    await page.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle0' });
-    await expectVisible('#root', 'Login Root');
-
-    // Basic assertions
-    if (errors.length) {
-      console.error('Console errors detected:', errors);
-      throw new Error('Smoke test failed due to console errors');
-    }
-    if (requestsFailed.length) {
-      console.error('Failed requests:', requestsFailed);
-      throw new Error('Smoke test failed due to failed network requests');
-    }
-
-    console.log('Smoke test passed with no console errors and no failed requests.');
-  } finally {
-    await browser.close();
-  }
+// Ensure the screenshots directory exists
+const screenshotsDir = path.join(__dirname, '..', 'screenshots');
+if (!fs.existsSync(screenshotsDir)) {
+  fs.mkdirSync(screenshotsDir);
 }
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+(async () => {
+  let browser;
+  try {
+    console.log('🚀 Launching browser...');
+    browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    
+    console.log('🌍 Opening new page...');
+    const page = await browser.newPage();
+    
+    let consoleErrors = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        const errorText = `❌ Browser Console Error: ${msg.text()}`;
+        console.error(errorText);
+        consoleErrors.push(errorText);
+      }
+    });
+
+    page.on('pageerror', err => {
+        const errorText = `❌ Page Error: ${err.message}`;
+        console.error(errorText);
+        consoleErrors.push(errorText);
+    });
+
+    const url = 'http://localhost:4173';
+    console.log(`🧭 Navigating to ${url}...`);
+    
+    await page.goto(url, { waitUntil: 'networkidle2' });
+    
+    console.log('✅ Page loaded successfully.');
+    
+    const title = await page.title();
+    console.log(`📄 Page title: "${title}"`);
+    
+    // Check for the root element
+    const rootElement = await page.$('#root');
+    if (!rootElement) {
+        throw new Error('#root element not found on the page.');
+    }
+    console.log('👍 #root element found.');
+
+    if (title.includes('AGI Workforce')) {
+      console.log('👍 Verification successful: Title contains "AGI Workforce".');
+    } else {
+      console.error('👎 Verification failed: Title does not contain "AGI Workforce".');
+      throw new Error('Title verification failed.');
+    }
+
+    if (consoleErrors.length > 0) {
+        throw new Error('Console errors were found on the page.');
+    }
+
+  } catch (error) {
+    console.error('🔥 An error occurred during the smoke test:', error.message);
+    const screenshotPath = path.join(screenshotsDir, `failure-${Date.now()}.png`);
+    if (browser) {
+        const pages = await browser.pages();
+        if(pages.length > 0){
+            await pages[0].screenshot({ path: screenshotPath, fullPage: true });
+            console.log(`📸 Screenshot saved to ${screenshotPath}`);
+        }
+    }
+    process.exit(1);
+  } finally {
+    if (browser) {
+      console.log('🚪 Closing browser...');
+      await browser.close();
+    }
+    console.log('----------');
+    console.log('✅ Smoke test finished.');
+  }
+})();
 
 

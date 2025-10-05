@@ -45,140 +45,84 @@ export function setupGlobalErrorHandlers(): void {
   });
 }
 
-// Safe error throwing utility
-export function safeThrow(message: string, originalError?: any): never {
-  const error = new Error(message);
-  
-  if (originalError) {
-    // Store original error in a custom property for compatibility
-    (error as any).originalError = originalError;
-    console.error('Original error:', originalError);
+/**
+ * Ensures a deeply nested property path exists on an object.
+ * @param obj The root object (e.g., `window`).
+ * @param path An array of keys representing the path.
+ * @returns The final object in the path.
+ */
+function ensureObjectPath(obj: any, path: string[]): any {
+  let current: any = obj;
+  for (const key of path) {
+    if (current[key] === undefined || current[key] === null) {
+      current[key] = {};
+    }
+    current = current[key];
   }
-  
-  console.error('Throwing proper Error:', error);
-  throw error;
+  return current;
 }
 
-// Safe property assignment with proper error handling
-export function safeSetPropertyWithErrorHandling(
-  target: any,
-  property: string,
-  value: any,
-  context: string = 'unknown'
-): boolean {
-  try {
-    if (!target) {
-      const error = new Error(`Target object is undefined for property '${property}' in context: ${context}`);
-      console.error('Safe property assignment failed:', error);
-      return false;
-    }
-
-    if (!target[property]) {
-      target[property] = {};
-    }
-
-    target[property] = value;
-    return true;
-  } catch (error) {
-    const properError = new Error(`Failed to set property '${property}' in context '${context}': ${error}`);
-    console.error('Property assignment error:', properError);
-    return false;
+/**
+ * Centralized initialization for all global objects.
+ * This is the single source of truth for global state setup.
+ * It should be called once in `main.tsx` before the app renders.
+ */
+export function initializeGlobalObjects(): void {
+  if (typeof window === 'undefined') {
+    console.warn('Window object not available during initialization.');
+    return;
   }
-}
 
-// Safe Activity property assignment with comprehensive error handling
-export function safeSetActivityWithErrorHandling(
-  target: any,
-  value: any,
-  context: string = 'unknown'
-): boolean {
   try {
-    if (!target) {
-      const error = new Error(`Target object is undefined for Activity assignment in context: ${context}`);
-      console.error('Activity assignment failed:', error);
-      return false;
-    }
+    console.log('🚀 Starting global object initialization...');
 
-    if (!target.Activity) {
-      target.Activity = {
-        initialized: true,
-        timestamp: Date.now(),
-        context: context
-      };
-    }
+    // Define all required global objects and their paths
+    const requiredGlobals = [
+      'elevenLabs.Activity',
+      'agentuity',
+      'globalState'
+    ];
 
-    target.Activity = { ...target.Activity, ...value };
-    return true;
-  } catch (error) {
-    const properError = new Error(`Failed to set Activity property in context '${context}': ${error}`);
-    console.error('Activity assignment error:', properError);
-    return false;
-  }
-}
-
-// Comprehensive initialization with error handling
-export function initializeWithErrorHandling(): void {
-  try {
-    console.log('Starting comprehensive initialization...');
-    
-    if (typeof window === 'undefined') {
-      console.warn('Window object not available');
-      return;
-    }
-
-    // Initialize ElevenLabs with error handling
-    if (!window.elevenLabs) {
-      window.elevenLabs = {};
-      console.log('Initialized elevenLabs object');
-    }
-
-    if (!window.elevenLabs.Activity) {
-      window.elevenLabs.Activity = {
-        initialized: true,
-        timestamp: Date.now(),
-        version: '1.0.0'
-      };
-      console.log('Initialized Activity property');
-    }
-
-    // Test assignment with error handling
-    try {
-      window.elevenLabs.Activity.test = 'initialization-test';
-      delete window.elevenLabs.Activity.test;
-      console.log('Activity property test successful');
-    } catch (error) {
-      const properError = new Error(`Activity property test failed: ${error}`);
-      console.error('Activity test error:', properError);
-      
-      // Recreate Activity object
-      window.elevenLabs.Activity = {
-        initialized: true,
-        timestamp: Date.now(),
-        version: '1.0.0',
-        errorRecovery: true
-      };
-    }
-
-    // Initialize other global objects
-    const globalObjects = ['agentuity', 'globalState'];
-    globalObjects.forEach(objName => {
-      try {
-        if (!(window as any)[objName]) {
-          (window as any)[objName] = {};
-          console.log(`Initialized ${objName} object`);
-        }
-      } catch (error) {
-        const properError = new Error(`Failed to initialize ${objName}: ${error}`);
-        console.error('Global object initialization error:', properError);
-      }
+    requiredGlobals.forEach(path => {
+      const keys = path.split('.');
+      ensureObjectPath(window, keys);
     });
 
-    console.log('Comprehensive initialization completed successfully');
+    // Specific initialization for elevenLabs.Activity with a test
+    if (window.elevenLabs && !window.elevenLabs.Activity.initialized) {
+        window.elevenLabs.Activity = {
+            initialized: true,
+            timestamp: Date.now(),
+            version: '1.0.1'
+        };
+
+        // Test assignment to ensure the object is writable
+        try {
+            window.elevenLabs.Activity.test = 'initialization-test';
+            delete window.elevenLabs.Activity.test;
+            console.log('✅ `elevenLabs.Activity` initialized and tested successfully.');
+        } catch (error) {
+            console.error('🔥 Critical Error: `elevenLabs.Activity` is not writable.', error);
+            // If this fails, the app is in an unrecoverable state for this feature.
+            // We can attempt a hard overwrite.
+            Object.defineProperty(window.elevenLabs, 'Activity', {
+                value: {
+                    initialized: true,
+                    timestamp: Date.now(),
+                    version: '1.0.1',
+                    recovered: true,
+                },
+                writable: true,
+                configurable: true,
+            });
+        }
+    }
+    
+    console.log('👍 Global object initialization complete.');
+
   } catch (error) {
-    const properError = new Error(`Initialization failed: ${error}`);
-    console.error('Initialization error:', properError);
-    // Don't throw - just log the error and continue
-    console.error('⚠️ Failed to initialize global objects, but continuing:', error);
+    console.error('💥 A critical error occurred during global initialization:', error);
+    // Depending on severity, you might want to show a global error message to the user.
   }
 }
 

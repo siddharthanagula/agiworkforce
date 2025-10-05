@@ -18,12 +18,7 @@
             
             // Use Object.defineProperty to prevent reassignment issues
             if (!window.elevenLabs.Activity) {
-              Object.defineProperty(window.elevenLabs, 'Activity', {
-                value: {},
-                writable: true,
-                enumerable: true,
-                configurable: true
-              });
+              window.elevenLabs.Activity = {};
             }
             
             // Fallback for libs using global Activity directly

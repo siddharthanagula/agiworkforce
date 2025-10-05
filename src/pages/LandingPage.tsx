@@ -130,7 +130,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section with Scroll Expansion */}
-      <ScrollExpansionHero
+      {/* <ScrollExpansionHero
         title="AGI Workforce"
         subtitle="Transform your business with AI employees that work 24/7"
       >
@@ -145,7 +145,7 @@ export default function LandingPage() {
             <RainbowButton onClick={() => navigate('/register')} className="text-lg px-8 py-6">
               Get Started Free
               <ArrowRight className="ml-2 h-5 w-5" />
-            </RainbowButton>
+              </RainbowButton>
             <Button
               variant="outline"
               size="lg"
@@ -153,13 +153,13 @@ export default function LandingPage() {
               onClick={() => navigate('/marketplace')}
             >
               Explore Marketplace
-            </Button>
+              </Button>
           </div>
         </div>
-      </ScrollExpansionHero>
+      </ScrollExpansionHero> */}
 
       {/* Features Section with Spotlight */}
-      <section className="relative py-20 px-4 overflow-hidden">
+      {/* <section className="relative py-20 px-4 overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
@@ -169,7 +169,7 @@ export default function LandingPage() {
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Everything you need to build and manage your AI workforce
             </p>
-          </div>
+        </div>
 
           <BentoGrid className="lg:grid-rows-2 mb-16">
             {bentoFeatures.map((feature) => (
@@ -177,25 +177,25 @@ export default function LandingPage() {
             ))}
           </BentoGrid>
         </div>
-      </section>
+      </section> */}
 
       {/* Display Cards Section */}
-      <section className="py-20 px-4 bg-muted/30">
+      {/* <section className="py-20 px-4 bg-muted/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Why Choose AGI Workforce?
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Why Choose AGI Workforce?
+        </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               The future of work is here
-            </p>
-          </div>
+          </p>
+        </div>
 
           <div className="flex justify-center">
             <DisplayCards cards={displayCardsData} />
-          </div>
         </div>
-      </section>
+        </div>
+      </section> */}
 
       {/* Testimonials */}
       <TestimonialsSection

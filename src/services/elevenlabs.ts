@@ -29,37 +29,9 @@ async function loadElevenLabsClient() {
   return ElevenLabsClient;
 }
 
-// Initialize global objects with comprehensive error handling
-if (typeof window !== 'undefined') {
-  try {
-    // Ensure global objects exist with comprehensive initialization
-    if (!window.elevenLabs) {
-      window.elevenLabs = {};
-    }
-    
-    // Ensure Activity property exists
-    if (!window.elevenLabs.Activity) {
-      window.elevenLabs.Activity = {
-        initialized: true,
-        timestamp: Date.now(),
-        version: '1.0.0'
-      };
-    }
-    
-    // Test assignment to ensure it works
-    try {
-      window.elevenLabs.Activity.test = 'service-test';
-      delete window.elevenLabs.Activity.test;
-      console.log('✓ ElevenLabs Activity property initialized successfully');
-    } catch (error) {
-      console.error('⚠️ Activity property test failed, but continuing:', error);
-      // Don't throw - just log and continue
-    }
-  } catch (error) {
-    console.error('⚠️ ElevenLabs service initialization failed, but continuing:', error);
-    // Don't throw - just log and continue
-  }
-}
+// REMOVED: Top-level global object initialization.
+// This logic is now centralized in `src/main.tsx` via `errorHandling.ts`
+// to prevent race conditions and ensure a single source of truth.
 
 // Initialize the ElevenLabs client
 export async function initializeElevenLabs() {

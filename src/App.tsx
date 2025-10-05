@@ -10,8 +10,13 @@ import MarketplacePage from '@/pages/MarketplacePage'
 // import EnhancedChatPage from '@/pages/chat/EnhancedChatPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import { Toaster } from '@/components/ui/sonner'
+// React import is not needed here anymore as it's handled by Vite
+// import React from 'react'
 
 // Global type declarations
+// This should be handled in a dedicated .d.ts file, but for now, we leave it
+// to ensure other parts of the app don't break.
+// However, the initialization logic is being removed from here.
 declare global {
   interface Window {
     elevenLabs?: {
@@ -21,29 +26,9 @@ declare global {
   }
 }
 
-// Initialize global objects with error handling
-if (typeof window !== 'undefined') {
-  try {
-    // Initialize ElevenLabs global objects
-    if (!window.elevenLabs) {
-      window.elevenLabs = {};
-    }
-    if (!window.elevenLabs.Activity) {
-      window.elevenLabs.Activity = {
-        initialized: true,
-        timestamp: Date.now(),
-        context: 'App.tsx'
-      };
-    }
-    
-    // Initialize other potential global objects
-    if (!window.agentuity) {
-      window.agentuity = {};
-    }
-  } catch (error) {
-    console.error('App.tsx global object initialization failed:', error);
-  }
-}
+// REMOVED: Global object initialization logic. This will be centralized in main.tsx.
+
+// REMOVED: Complex useEffect for waiting on vendor bundle. This is an anti-pattern.
 
 function AppWrapper() {
   const auth0ConfigData = getAuth0Config()

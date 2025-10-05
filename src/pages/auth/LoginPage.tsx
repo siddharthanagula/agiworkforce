@@ -4,18 +4,21 @@ import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { RainbowButton } from '@/components/ui/rainbow-button'
 import LoginButton from '@/components/auth/LoginButton'
-import { Lock, User } from 'lucide-react'
+import { Lock, ShieldAlert, User } from 'lucide-react'
+import { isAuth0Configured } from '@/lib/auth0'
 
 export default function LoginPage() {
+  return isAuth0Configured() ? <Auth0LoginScreen /> : <UnconfiguredLoginScreen />
+}
+
+function Auth0LoginScreen() {
   const { isLoading } = useAuth0()
   const navigate = useNavigate()
   const [isSignUp, setIsSignUp] = useState(false)
 
   const handleDemoLogin = () => {
-    // Demo login functionality
     navigate('/dashboard')
   }
-
 
   if (isLoading) {
     return (
@@ -25,6 +28,84 @@ export default function LoginPage() {
     )
   }
 
+  return (
+    <LoginLayout
+      isSignUp={isSignUp}
+      onToggleSignUp={() => setIsSignUp(!isSignUp)}
+      onDemoLogin={handleDemoLogin}
+      authSection={<LoginButton />}
+      helperSection={
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-white/20" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-transparent px-2 text-slate-400">Or continue with</span>
+          </div>
+        </div>
+      }
+    />
+  )
+}
+
+function UnconfiguredLoginScreen() {
+  const navigate = useNavigate()
+  const [isSignUp, setIsSignUp] = useState(false)
+
+  const handleDemoLogin = () => {
+    navigate('/dashboard')
+  }
+
+  return (
+    <LoginLayout
+      isSignUp={isSignUp}
+      onToggleSignUp={() => setIsSignUp(!isSignUp)}
+      onDemoLogin={handleDemoLogin}
+      authSection={
+        <div className="space-y-4 rounded-lg border border-white/10 bg-white/5 p-4 text-left">
+          <div className="flex items-center gap-3 text-white">
+            <ShieldAlert className="h-5 w-5 text-amber-400" />
+            <div>
+              <p className="text-sm font-semibold">Auth0 is not configured</p>
+              <p className="text-xs text-slate-200/80">
+                Please add your Auth0 credentials to the environment variables to enable login.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-2 text-xs text-slate-200/70">
+            <p>Checklist:</p>
+            <ul className="space-y-1 list-disc list-inside">
+              <li>Set <span className="font-mono">VITE_AUTH0_DOMAIN</span> in Vercel/ENV</li>
+              <li>Set <span className="font-mono">VITE_AUTH0_CLIENT_ID</span></li>
+              <li>Deploy the project after updating values</li>
+            </ul>
+          </div>
+        </div>
+      }
+      helperSection={
+        <p className="text-xs text-slate-200/70 text-center">
+          Once credentials are added, refresh the page to enable Auth0 login.
+        </p>
+      }
+    />
+  )
+}
+
+interface LoginLayoutProps {
+  isSignUp: boolean
+  onToggleSignUp: () => void
+  onDemoLogin: () => void
+  authSection: React.ReactNode
+  helperSection?: React.ReactNode
+}
+
+function LoginLayout({
+  isSignUp,
+  onToggleSignUp,
+  onDemoLogin,
+  authSection,
+  helperSection
+}: LoginLayoutProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -44,48 +125,38 @@ export default function LoginPage() {
               {isSignUp ? 'Create Account' : 'Sign In'}
             </CardTitle>
             <CardDescription className="text-slate-300">
-              {isSignUp 
-                ? 'Join the future of AI-powered workforce' 
+              {isSignUp
+                ? 'Join the future of AI-powered workforce'
                 : 'Welcome back to your AI team'
               }
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Auth0 Login Buttons */}
-            <LoginButton />
+            {authSection}
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-white/20" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-transparent px-2 text-slate-400">Or continue with</span>
-              </div>
-            </div>
+            {helperSection}
 
-            {/* Demo Login */}
             <div className="space-y-4">
               <RainbowButton
-                onClick={handleDemoLogin}
+                onClick={onDemoLogin}
                 className="w-full"
               >
                 <Lock className="mr-2 h-4 w-4" />
                 Try Demo Account
               </RainbowButton>
-              
+
               <p className="text-xs text-slate-400 text-center">
                 Demo account gives you full access to explore the platform
               </p>
             </div>
 
-            {/* Toggle between sign in and sign up */}
             <div className="text-center">
               <button
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={onToggleSignUp}
                 className="text-sm text-slate-300 hover:text-white transition-colors"
               >
-                {isSignUp 
-                  ? 'Already have an account? Sign in' 
+                {isSignUp
+                  ? 'Already have an account? Sign in'
                   : "Don't have an account? Sign up"
                 }
               </button>
