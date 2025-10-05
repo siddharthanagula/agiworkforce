@@ -10,4 +10,11 @@ export const auth0Config: Auth0ProviderOptions = {
   },
   cacheLocation: 'localstorage',
   useRefreshTokens: true,
+  // Add proper error handling
+  onRedirectCallback: (appState) => {
+    // Handle redirect after login
+    window.location.replace(
+      appState?.returnTo || window.location.pathname
+    );
+  },
 };
