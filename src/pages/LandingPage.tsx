@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Bot, Sparkles, Zap, DollarSign, Users, MessageSquare } from 'lucide-react'
 import { ElevenLabsVoice } from '@/components/voice/ElevenLabsVoice'
+import { Spotlight } from '@/components/ui/spotlight'
+import { SplineScene } from '@/components/ui/splite'
 
 export default function LandingPage() {
   const aiEmployees = [
@@ -37,8 +39,9 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <section className="container mx-auto px-4 py-20 text-center relative overflow-hidden">
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="red" />
+        <div className="max-w-4xl mx-auto space-y-8 relative z-10">
           <img
             src="https://i.ibb.co/ZVQxKGT/agi-workforce-logo.png"
             alt="AGI Workforce Logo"
@@ -71,6 +74,14 @@ export default function LandingPage() {
             </Link>
           </div>
           <p className="text-sm text-muted-foreground">No credit card required • Cancel anytime</p>
+        </div>
+
+        {/* 3D Spline Scene */}
+        <div className="absolute top-0 right-0 w-1/2 h-full opacity-30 pointer-events-none hidden lg:block">
+          <SplineScene
+            scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
+            className="w-full h-full"
+          />
         </div>
       </section>
 
