@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Bot, Sparkles, Zap, DollarSign, Users, MessageSquare } from 'lucide-react'
+import { ElevenLabsVoice } from '@/components/voice/ElevenLabsVoice'
 
 export default function LandingPage() {
   const aiEmployees = [
@@ -38,6 +39,13 @@ export default function LandingPage() {
             Get access to specialized AI agents powered by Claude, ChatGPT, and Gemini.
             Just $1/month per employee.
           </p>
+
+          {/* Voice Assistant */}
+          <div className="my-12">
+            <h2 className="text-2xl text-foreground mb-6">Try Our Voice Assistant</h2>
+            <ElevenLabsVoice />
+          </div>
+
           <div className="flex gap-4 justify-center">
             <Link to="/register">
               <Button size="lg" className="text-lg px-8 py-6">

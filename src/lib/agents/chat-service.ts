@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { routeToAgent, type AgentRequest } from './router';
+import { sendMessageToGemini } from './gemini-service';
 import type { ChatMessage } from '@/types';
 
 export interface CreateChatSessionParams {
@@ -98,15 +99,24 @@ export async function sendMessage(params: SendMessageParams): Promise<ChatMessag
     throw new Error(`Failed to save user message: ${userMessageError.message}`);
   }
 
-  // Get AI response using Agentuity-style routing
-  const agentRequest: AgentRequest = {
-    prompt: content,
-    employeeId,
-    employeeRole,
-    sessionId,
-  };
+  // Get AI response using Gemini API (primary) or fallback to Claude routing
+  let aiResponseContent: string;
 
-  const aiResponse = await routeToAgent(agentRequest);
+  try {
+    // Try Gemini API first (for hackathon requirement)
+    aiResponseContent = await sendMessageToGemini(content, employeeRole);
+  } catch (geminiError) {
+    console.warn('Gemini API failed, falling back to Claude:', geminiError);
+    // Fallback to Agentuity-style routing with Claude
+    const agentRequest: AgentRequest = {
+      prompt: content,
+      employeeId,
+      employeeRole,
+      sessionId,
+    };
+    const aiResponse = await routeToAgent(agentRequest);
+    aiResponseContent = aiResponse.content;
+  }
 
   // Save AI response to database
   const { data: assistantMessage, error: assistantMessageError } = await supabase
@@ -114,7 +124,7 @@ export async function sendMessage(params: SendMessageParams): Promise<ChatMessag
     .insert({
       session_id: sessionId,
       role: 'assistant',
-      content: aiResponse.content,
+      content: aiResponseContent,
     })
     .select()
     .single();
@@ -126,7 +136,7 @@ export async function sendMessage(params: SendMessageParams): Promise<ChatMessag
   return {
     id: assistantMessage.id,
     role: 'assistant',
-    content: aiResponse.content,
+    content: aiResponseContent,
     timestamp: new Date(assistantMessage.timestamp),
     employeeId,
   };
