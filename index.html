@@ -7,17 +7,43 @@
     <title>AGI Workforce - Hire AI Employees</title>
     <script>
       // Early globals to prevent vendor/libs writing to undefined targets
+      // This MUST run before any other scripts
       (function () {
         try {
           if (typeof window !== 'undefined') {
-            if (!window.elevenLabs) window.elevenLabs = {};
-            if (!window.elevenLabs.Activity) window.elevenLabs.Activity = {};
-            if (!window.Activity) window.Activity = {}; // fallback for libs using global Activity
-            if (!window.agentuity) window.agentuity = {};
-            if (!window.globalState) window.globalState = {};
+            // Define elevenLabs with a non-configurable Activity property
+            if (!window.elevenLabs) {
+              window.elevenLabs = {};
+            }
+            
+            // Use Object.defineProperty to prevent reassignment issues
+            if (!window.elevenLabs.Activity) {
+              Object.defineProperty(window.elevenLabs, 'Activity', {
+                value: {},
+                writable: true,
+                enumerable: true,
+                configurable: true
+              });
+            }
+            
+            // Fallback for libs using global Activity directly
+            if (!window.Activity) {
+              window.Activity = {};
+            }
+            
+            // Initialize other global objects
+            if (!window.agentuity) {
+              window.agentuity = {};
+            }
+            
+            if (!window.globalState) {
+              window.globalState = {};
+            }
+            
+            console.log('✓ Global objects initialized successfully');
           }
         } catch (e) {
-          // no-op: defensive
+          console.error('Failed to initialize global objects:', e);
         }
       })();
     </script>

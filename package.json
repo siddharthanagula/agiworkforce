@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "setup-auth0": "node scripts/setup-auth0.js",
-    "test:smoke": "node scripts/smoke-test.js"
+    "test:smoke": "node scripts/smoke-test.js",
+    "test:landing": "node scripts/test-landing.js"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.5.0",

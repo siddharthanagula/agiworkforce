@@ -6,10 +6,10 @@ import LoginPage from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
 import LandingPage from '@/pages/LandingPage'
 import MarketplacePage from '@/pages/MarketplacePage'
-import EnhancedChatPage from '@/pages/chat/EnhancedChatPage'
+// Don't import chat page to avoid loading elevenlabs
+// import EnhancedChatPage from '@/pages/chat/EnhancedChatPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import { Toaster } from '@/components/ui/sonner'
-// import { withErrorBoundary } from '@/utils/errorHandling'
 
 // Global type declarations
 declare global {
@@ -79,7 +79,8 @@ function App() {
             <DashboardPage />
           </ProtectedRoute>
         } />
-        <Route path="/chat" element={
+        {/* Chat routes temporarily disabled to avoid elevenlabs loading issues */}
+        {/* <Route path="/chat" element={
           <ProtectedRoute>
             <EnhancedChatPage />
           </ProtectedRoute>
@@ -88,7 +89,7 @@ function App() {
           <ProtectedRoute>
             <EnhancedChatPage />
           </ProtectedRoute>
-        } />
+        } /> */}
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,6 +1,4 @@
-import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
 import { AIEmployeeType } from './gemini';
-import { safeSetActivityWithErrorHandling, safeThrow } from '../utils/errorHandling';
 
 // Global type declaration for ElevenLabs
 declare global {
@@ -14,7 +12,22 @@ declare global {
 // Initialize ElevenLabs API
 const API_KEY = (import.meta as any).env?.VITE_ELEVENLABS_API_KEY || '';
 
-let client: ElevenLabsClient | null = null;
+// Lazy load ElevenLabsClient to avoid initialization errors
+let ElevenLabsClient: any = null;
+let client: any = null;
+
+// Dynamically import ElevenLabsClient only when needed
+async function loadElevenLabsClient() {
+  if (!ElevenLabsClient) {
+    try {
+      const module = await import('@elevenlabs/elevenlabs-js');
+      ElevenLabsClient = module.ElevenLabsClient;
+    } catch (error) {
+      console.error('Failed to load ElevenLabs SDK:', error);
+    }
+  }
+  return ElevenLabsClient;
+}
 
 // Initialize global objects with comprehensive error handling
 if (typeof window !== 'undefined') {
@@ -24,42 +37,45 @@ if (typeof window !== 'undefined') {
       window.elevenLabs = {};
     }
     
-    // Use safe Activity property assignment
-    const activityInitialized = safeSetActivityWithErrorHandling(
-      window.elevenLabs,
-      {
+    // Ensure Activity property exists
+    if (!window.elevenLabs.Activity) {
+      window.elevenLabs.Activity = {
         initialized: true,
         timestamp: Date.now(),
         version: '1.0.0'
-      },
-      'elevenlabs-service'
-    );
-    
-    if (!activityInitialized) {
-      safeThrow('Failed to initialize Activity property in ElevenLabs service');
+      };
     }
     
     // Test assignment to ensure it works
     try {
       window.elevenLabs.Activity.test = 'service-test';
       delete window.elevenLabs.Activity.test;
+      console.log('✓ ElevenLabs Activity property initialized successfully');
     } catch (error) {
-      safeThrow('Activity property test failed in ElevenLabs service', error);
+      console.error('⚠️ Activity property test failed, but continuing:', error);
+      // Don't throw - just log and continue
     }
   } catch (error) {
-    safeThrow('ElevenLabs service initialization failed', error);
+    console.error('⚠️ ElevenLabs service initialization failed, but continuing:', error);
+    // Don't throw - just log and continue
   }
 }
 
 // Initialize the ElevenLabs client
-export function initializeElevenLabs() {
+export async function initializeElevenLabs() {
   if (!API_KEY) {
     console.warn('ElevenLabs API key not configured');
     return false;
   }
 
   try {
-    client = new ElevenLabsClient({
+    const ClientClass = await loadElevenLabsClient();
+    if (!ClientClass) {
+      console.error('Failed to load ElevenLabsClient');
+      return false;
+    }
+    
+    client = new ClientClass({
       apiKey: API_KEY,
     });
     return true;

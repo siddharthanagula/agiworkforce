@@ -177,7 +177,8 @@ export function initializeWithErrorHandling(): void {
   } catch (error) {
     const properError = new Error(`Initialization failed: ${error}`);
     console.error('Initialization error:', properError);
-    safeThrow('Failed to initialize global objects', error);
+    // Don't throw - just log the error and continue
+    console.error('⚠️ Failed to initialize global objects, but continuing:', error);
   }
 }
 
