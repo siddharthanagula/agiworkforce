@@ -27,6 +27,14 @@ export default defineConfig({
           if (id.includes('react-router-dom') || id.includes('react-router')) {
             return 'react-vendors'
           }
+          // Auth0 and other React-dependent libraries - keep with React
+          if (id.includes('@auth0') || id.includes('zustand') || id.includes('sonner')) {
+            return 'react-vendors'
+          }
+          // ElevenLabs - keep with React to prevent Activity errors
+          if (id.includes('@elevenlabs') || id.includes('elevenlabs')) {
+            return 'react-vendors'
+          }
           // UI Components that depend on React
           if (id.includes('@radix-ui') || id.includes('framer-motion') || id.includes('lucide-react')) {
             return 'ui-components'
@@ -39,14 +47,17 @@ export default defineConfig({
           if (id.includes('@splinetool/runtime')) {
             return 'spline-runtime'
           }
-          // Auth0 and other React-dependent libraries
-          if (id.includes('@auth0') || id.includes('zustand') || id.includes('sonner')) {
-            return 'react-vendors'
-          }
           // Default chunk for other dependencies
           if (id.includes('node_modules')) {
             return 'vendor'
           }
+        },
+        // Ensure proper chunk loading order
+        chunkFileNames: (chunkInfo) => {
+          if (chunkInfo.name === 'react-vendors') {
+            return 'assets/react-vendors-[hash].js'
+          }
+          return 'assets/[name]-[hash].js'
         },
       },
     },

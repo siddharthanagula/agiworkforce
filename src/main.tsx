@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { initializeAllGlobals } from './utils/errorPrevention'
 
 // Global type declarations
 declare global {
@@ -15,25 +16,7 @@ declare global {
 }
 
 // Initialize global objects before React starts
-if (typeof window !== 'undefined') {
-  // Initialize ElevenLabs global objects
-  if (!window.elevenLabs) {
-    window.elevenLabs = {};
-  }
-  if (!window.elevenLabs.Activity) {
-    window.elevenLabs.Activity = {};
-  }
-  
-  // Initialize other potential global objects
-  if (!window.agentuity) {
-    window.agentuity = {};
-  }
-  
-  // Initialize any other global objects that might be needed
-  if (!window.globalState) {
-    window.globalState = {};
-  }
-}
+initializeAllGlobals();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

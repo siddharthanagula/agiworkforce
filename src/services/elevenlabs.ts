@@ -17,13 +17,29 @@ let client: ElevenLabsClient | null = null;
 
 // Initialize global objects to prevent undefined errors
 if (typeof window !== 'undefined') {
-  // Ensure global objects exist
+  // Ensure global objects exist with comprehensive initialization
   if (!window.elevenLabs) {
     window.elevenLabs = {};
   }
   if (!window.elevenLabs.Activity) {
     window.elevenLabs.Activity = {};
   }
+  
+  // Additional safeguards for Activity property
+  if (!window.elevenLabs.Activity) {
+    window.elevenLabs.Activity = {
+      initialized: true,
+      timestamp: Date.now()
+    };
+  }
+  
+  // Ensure the Activity object is always available
+  Object.defineProperty(window.elevenLabs, 'Activity', {
+    value: window.elevenLabs.Activity || {},
+    writable: true,
+    configurable: true,
+    enumerable: true
+  });
 }
 
 // Initialize the ElevenLabs client
