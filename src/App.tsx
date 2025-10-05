@@ -10,6 +10,32 @@ import EnhancedChatPage from '@/pages/chat/EnhancedChatPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import { Toaster } from '@/components/ui/sonner'
 
+// Global type declarations
+declare global {
+  interface Window {
+    elevenLabs?: {
+      Activity?: any;
+    };
+    agentuity?: any;
+  }
+}
+
+// Initialize global objects to prevent undefined errors
+if (typeof window !== 'undefined') {
+  // Initialize ElevenLabs global objects
+  if (!window.elevenLabs) {
+    window.elevenLabs = {};
+  }
+  if (!window.elevenLabs.Activity) {
+    window.elevenLabs.Activity = {};
+  }
+  
+  // Initialize other potential global objects
+  if (!window.agentuity) {
+    window.agentuity = {};
+  }
+}
+
 function AppWrapper() {
   const auth0ConfigData = getAuth0Config()
   

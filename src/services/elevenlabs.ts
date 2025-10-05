@@ -1,10 +1,30 @@
 import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
 import { AIEmployeeType } from './gemini';
 
+// Global type declaration for ElevenLabs
+declare global {
+  interface Window {
+    elevenLabs?: {
+      Activity?: any;
+    };
+  }
+}
+
 // Initialize ElevenLabs API
 const API_KEY = (import.meta as any).env?.VITE_ELEVENLABS_API_KEY || '';
 
 let client: ElevenLabsClient | null = null;
+
+// Initialize global objects to prevent undefined errors
+if (typeof window !== 'undefined') {
+  // Ensure global objects exist
+  if (!window.elevenLabs) {
+    window.elevenLabs = {};
+  }
+  if (!window.elevenLabs.Activity) {
+    window.elevenLabs.Activity = {};
+  }
+}
 
 // Initialize the ElevenLabs client
 export function initializeElevenLabs() {
